@@ -1,6 +1,9 @@
 import abc
-from typing import T, TypeVar, Generic, List
+from typing import TypeVar, Generic, List, Any, Union
 
+from core.models import Board
+from core.models.objectives import Goal, Habit, Task
+from core.models.skills import Skill
 from core.repositories import BoardRepository, GoalRepository, TaskRepository, \
     HabitRepository, SkillRepository
 
@@ -18,8 +21,24 @@ class Context:
         self.habit_repo = habit_repository
         self.skill_repo = skill_repository
 
+    def repository_factory(self, entity: Any):
+        if isinstance(entity, Goal):
+            return self.goal_repo
+        elif isinstance(entity, Habit):
+            return self.habit_repo
+        elif isinstance(entity, Task):
+            return self.task_repo
+        elif isinstance(entity, Skill):
+            return self.skill_repo
+        elif isinstance(entity, Board):
+            return self.board_repo
+        else:
+            raise NotImplementedError
+
 
 T = TypeVar('T')
+
+All_Types =  Union[Habit, Goal, Task, Skill, Board]
 
 
 class ServiceMixin(Generic[T], metaclass=abc.ABCMeta):
@@ -44,18 +63,49 @@ class ServiceMixin(Generic[T], metaclass=abc.ABCMeta):
     def get(self, id: int) -> T:
         return self.repo.get(id)
 
+    def delete(self, entity: T):
+        for prev in entity.previous:
+            prev.remove_next(entity)
+        for next in entity.next:
+            next.remove_previous(entity)
+        self.repo.delete(entity.id)
+
     def list(self) -> List[T]:
         return self.repo.all()
 
     def update_name(self, id: int, new_name: str):
-        board = self.repo.get(id)
-        board.name = new_name
-        return self.repo.create_update(board)
+        entity = self.repo.get(id)
+        entity.name = new_name
+        return self.repo.create_update(entity)
 
     def update_description(self, id: int, new_description: str):
-        board = self.repo.get(id)
-        board.description = new_description
-        return self.repo.create_update(board)
+        entity = self.repo.get(id)
+        entity.description = new_description
+        return self.repo.create_update(entity)
+
+    def set_after(self, entity: All_Types, after: All_Types):
+        entity.add_previous(after)
+        after_repo = self.context.repository_factory(after)
+        after_repo.create_update(after)
+        return self.repo.create_update(entity)
+
+    def set_before(self, entity: All_Types, before: All_Types):
+        entity.add_next(before)
+        before_repo = self.context.repository_factory(before)
+        before_repo.create_update(before)
+        return self.repo.create_update(entity)
+
+    def remove_from_after(self, entity: All_Types, after: All_Types):
+        entity.remove_previous(after)
+        after_repo = self.context.repository_factory(after)
+        after_repo.create_update(after)
+        return self.repo.create_update(entity)
+
+    def remove_from_before(self, entity: All_Types, before: All_Types):
+        entity.remove_next(before)
+        before_repo = self.context.repository_factory(before)
+        before_repo.create_update(before)
+        return self.repo.create_update(entity)
 
 
 def in_memory_context_factory():

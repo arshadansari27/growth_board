@@ -5,6 +5,11 @@ from typing import List, Dict, Set
 from core.models import Iternary
 
 
+PROGRESS_TYPE_TASK = 'tasks'
+PROGRESS_TYPE_VALUE = 'value'
+PROGRESS_TYPE_BOOLEAN = 'boolean'
+
+
 @dataclass(eq=True, order=True)
 class Due:
     start: datetime
@@ -32,8 +37,14 @@ class Task(Objective):
 
 @dataclass(eq=True, order=True)
 class Goal(Objective):
-    progress: int = None
     tasks: Set[Task] = None
+    progress: int = None
+    progress_type: str = None
+
+    def __post_init__(self):
+        print(f"Post Init Goal")
+        if not self.progress_type:
+            self.progress_type = PROGRESS_TYPE_BOOLEAN
 
     def add_task(self, task: Task):
         if not self.tasks:
@@ -45,6 +56,34 @@ class Goal(Objective):
             return
         self.tasks.remove(task)
 
+    def get_progress_updater(self):
+
+        def update_value(value):
+            if (self.progress + value) >= 100:
+                self.progress = 100
+            else:
+                self.progress += value
+
+        def update_boolean(bool):
+            if bool:
+                self.progress = 100
+            else:
+                self.progress = 0
+
+        def update_task(_):
+            value = sum([1 if t.progress == 100 else 0 for t in self.tasks])
+            count = len(self.tasks)
+            self.progress = int((float(value) / count) * 100)
+
+        if self.progress_type == PROGRESS_TYPE_BOOLEAN:
+            return update_boolean
+        elif self.progress_type == PROGRESS_TYPE_TASK:
+            return update_task
+        elif self.progress_type == PROGRESS_TYPE_VALUE:
+            return update_value
+        else:
+            raise NotImplementedError
+
     def __repr__(self):
         return f"([{self.id}] {self.name})"
 
@@ -55,6 +94,12 @@ class Goal(Objective):
 @dataclass(eq=True, order=True)
 class Habit(Objective):
     done_dates: Dict[datetime, object] = None
+    progress_type: str = None
+
+    def __post_init__(self):
+        print(f"Post Init Goal")
+        if not self.progress_type:
+            self.progress_type = PROGRESS_TYPE_BOOLEAN
 
     def set_date(self, date: datetime, value: object):
         if not self.done_dates:
@@ -71,3 +116,4 @@ class Habit(Objective):
 
     def __hash__(self):
         return hash(self.id)
+

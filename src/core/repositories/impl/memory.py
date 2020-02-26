@@ -38,4 +38,10 @@ class MemoryRepository(
         return object
 
     def search(self, key):
-        return [val for val in self.data.values() if key in val]
+        return [val for val in self.data.values() if key in val.name]
+
+    def delete(self, id):
+        if id not in self.data:
+            return
+        del self.data[id]
+

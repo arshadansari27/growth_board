@@ -11,16 +11,19 @@ class BoardService(ServiceMixin[Board]):
     def repo(self):
         return self.context.board_repo
 
-    def add_iternary_to_map(
+    def add_iternary(
             self,
-            board: Board,
-            iternary: Iternary,
-            after: Iternary,
-            before: Iternary):
-        board.add(iternary, after=after, before=before)
+            board_id: int,
+            iternary: Iternary):
+        board = self.repo.get(board_id)
+        board.add(iternary)
         return self.repo.create_update(board)
 
-    def remove_iternary_from_map(self, board: Board, iternary: Iternary):
+    def remove_iternary(self, board_id: int, iternary: Iternary):
+        board = self.repo.get(board_id)
         board.remove(iternary)
         return self.repo.create_update(board)
 
+    def list_sorted(self, board_id: int):
+        board = self.repo.get(board_id)
+        return board.iterate()

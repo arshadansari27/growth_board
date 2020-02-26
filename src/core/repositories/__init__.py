@@ -28,6 +28,10 @@ def get_abstract_repository(Klass):
         def search(self, key: str) -> List[Klass]:
             pass
 
+        @abc.abstractmethod
+        def delete(self, id: int):
+            pass
+
     return _Repository
 
 

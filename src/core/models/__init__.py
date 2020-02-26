@@ -59,29 +59,13 @@ class Board:
         if not self.iternaries:
             self.iternaries = set()
 
-    def add(self,
-            iternary: Iternary,
-            after: Iternary=None,
-            before: Iternary=None):
+    def add(self, iternary: Iternary):
         self._setup()
-        if after:
-            iternary.add_previous(after)
-        if before:
-            iternary.add_next(before)
         self.iternaries.add(iternary)
 
     def remove(self, iternary: Iternary):
         self._setup()
-        if iternary in self.iternaries:
-            self.iternaries.remove(iternary)
-            for prev in iternary.previous:
-                iternary.remove_previous(prev)
-                for next in iternary.next:
-                    prev.add_next(next)
-            for prev in iternary.previous:
-                iternary.remove_previous(prev)
-            for next in iternary.next:
-                iternary.remove_next(next)
+        self.iternaries.remove(iternary)
 
     def iterate(self):
         _list = list()
