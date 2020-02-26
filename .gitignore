@@ -1,3 +1,4 @@
 # Created by pytest automatically.
 .idea/
 .pytest_cache/
+*.pyc
