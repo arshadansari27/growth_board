@@ -1,0 +1,51 @@
+import abc
+from typing import List
+
+from core.models import Board
+from core.models.objectives import (
+    Goal,
+    Task,
+    Habit,
+)
+from core.models.skills import Skill
+
+
+def get_abstract_repository(Klass):
+    class _Repository(metaclass=abc.ABCMeta):
+        @abc.abstractmethod
+        def get(self, id: int) -> Klass:
+            pass
+
+        @abc.abstractmethod
+        def all(self) -> List[Klass]:
+            pass
+
+        @abc.abstractmethod
+        def create_update(self, entity: Klass):
+            pass
+
+        @abc.abstractmethod
+        def search(self, key: str) -> List[Klass]:
+            pass
+
+    return _Repository
+
+
+class GoalRepository(get_abstract_repository(Goal)):
+    pass
+
+
+class TaskRepository(get_abstract_repository(Task)):
+    pass
+
+
+class HabitRepository(get_abstract_repository(Habit)):
+    pass
+
+
+class SkillRepository(get_abstract_repository(Skill)):
+    pass
+
+
+class BoardRepository(get_abstract_repository(Board)):
+    pass
