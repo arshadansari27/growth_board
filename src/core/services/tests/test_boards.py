@@ -1,5 +1,7 @@
 import pytest
 
+from core.models.objectives import Frequency, PROGRESS_TYPE_BOOLEAN, \
+    FREQUENCY_DAILY
 from core.services import in_memory_context_factory
 from core.services.boards import BoardService
 from core.services.goals import GoalService
@@ -29,7 +31,8 @@ def habit_service(context):
 def test_iternary_addition_and_removal(board_service, goal_service,
                                        habit_service):
     goal = goal_service.new('name-goal-1', 'description-test')
-    habit = habit_service.new('name-habit-2', 'description-test')
+    habit = habit_service.new('name-habit-2', Frequency(FREQUENCY_DAILY, 1),
+                              PROGRESS_TYPE_BOOLEAN, 'description-test')
     goal2 = goal_service.new('name-goal-2', 'description-test')
 
     goal_service.set_before(habit, goal2)

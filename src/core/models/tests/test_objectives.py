@@ -31,10 +31,12 @@ def test_plan_map():
     goal = Goal(1, 'test-goal-1')
     habit = Habit(1, 'test-habit-1', due=due)
     goal2 = Goal(2, 'test-goal-2', due=due)
+    goal.add_next(habit)
+    goal2.add_previous(habit)
     plan_map = Board(1)
     plan_map.add(habit)
-    plan_map.add(goal, before=habit)
-    plan_map.add(goal2, after=habit)
+    plan_map.add(goal)
+    plan_map.add(goal2)
     assert goal2 in habit.next
     assert habit in goal2.previous
     assert goal in habit.previous

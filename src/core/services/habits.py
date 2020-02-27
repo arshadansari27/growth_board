@@ -1,9 +1,8 @@
 from datetime import datetime
 from typing import Any
 
-from core.models import Iternary
 from core.models.objectives import Habit, PROGRESS_TYPE_BOOLEAN, \
-    PROGRESS_TYPE_VALUE
+    PROGRESS_TYPE_VALUE, Frequency
 from core.services import Context, ServiceMixin
 
 
@@ -15,6 +14,16 @@ class HabitService(ServiceMixin[Habit]):
     @property
     def repo(self):
         return self.context.habit_repo
+
+    def new(self, name, frequency: Frequency, progress_type:
+        str, description=None,) -> Habit:
+        habit = Habit(
+                None,
+                name=name,
+                frequency=frequency,
+                description=description,
+                progress_type=progress_type)
+        return self.repo.create_update(habit)
 
     def add_or_update_event(self, habit_id: int, date: datetime, value: Any):
         habit = self.repo.get(habit_id)

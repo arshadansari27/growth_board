@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Any, Union
 
 from core.models import Iternary
-
 
 PROGRESS_TYPE_TASK = 'tasks'
 PROGRESS_TYPE_VALUE = 'value'
@@ -91,17 +90,30 @@ class Goal(Objective):
         return hash(self.id)
 
 
+FREQUENCY_DAILY = 'daily'
+FREQUENCY_WEEKLY = 'weekly'
+FREQUENCY_MONTHLY = 'montly'
+
+
+@dataclass(eq=True)
+class Frequency:
+    type: str
+    max_count: int = 1
+
+
 @dataclass(eq=True, order=True)
 class Habit(Objective):
-    done_dates: Dict[datetime, object] = None
+    done_dates: Dict[datetime, Union[bool, int]] = None
     progress_type: str = None
+    rating: int = None
+    frequency: Frequency = None
 
     def __post_init__(self):
         print(f"Post Init Goal")
         if not self.progress_type:
             self.progress_type = PROGRESS_TYPE_BOOLEAN
 
-    def set_date(self, date: datetime, value: object):
+    def set_date(self, date: datetime, value: Union[bool, int]):
         if not self.done_dates:
             self.done_dates = {}
         self.done_dates[date] = value
@@ -110,6 +122,14 @@ class Habit(Objective):
         if not self.done_dates or date not in self.done_dates:
             return
         del self.done_dates[date]
+
+    def update_rating(self):
+        from core.models.specs import count_progress
+        self.rating = 0
+        if not self.done_dates:
+            return
+        self.rating = count_progress(
+                self.done_dates, self.progress_type, self.frequency)
 
     def __repr__(self):
         return f"([{self.id}] {self.name})"

@@ -31,6 +31,14 @@ class GoalService(ServiceMixin[Goal]):
         goal.due = due
         return self.repo.create_update(goal)
 
+    def new(self, name, description=None, progress_type: str=None) -> Goal:
+        goal = Goal(
+                None,
+                name=name,
+                description=description,
+                progress_type=progress_type)
+        return self.repo.create_update(goal)
+
     def new_task(self, goal_id: int, name: str, description: str):
         goal = self.repo.get(goal_id)
         task = self.task_service.new(name, description)
@@ -53,10 +61,12 @@ class TaskService(ServiceMixin[Task]):
     def repo(self):
         return self.context.task_repo
 
-    def mark_task_as_complete(self, task: Task):
+    def mark_as_complete(self, task: Task):
         task.progress = 100
+        task.completed = True
         return self.repo.create_update(task)
 
-    def mark_task_as_incomplete(self, task: Task):
+    def mark_as_incomplete(self, task: Task):
         task.progress = 0
+        task.completed = False
         return self.repo.create_update(task)

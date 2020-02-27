@@ -53,9 +53,7 @@ class ServiceMixin(Generic[T], metaclass=abc.ABCMeta):
 
     def new(self, name, description=None) -> T:
         entity = self.klass(None, name=name, description=description)
-        print(entity, type(entity))
-        entity = self.repo.create_update(entity)
-        return entity
+        return self.repo.create_update(entity)
 
     def search_by_name(self, name_like: str) -> List[T]:
         return self.repo.search(name_like)
