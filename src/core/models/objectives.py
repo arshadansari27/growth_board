@@ -41,7 +41,6 @@ class Goal(Objective):
     progress_type: str = None
 
     def __post_init__(self):
-        print(f"Post Init Goal")
         if not self.progress_type:
             self.progress_type = PROGRESS_TYPE_BOOLEAN
 
@@ -109,7 +108,6 @@ class Habit(Objective):
     frequency: Frequency = None
 
     def __post_init__(self):
-        print(f"Post Init Goal")
         if not self.progress_type:
             self.progress_type = PROGRESS_TYPE_BOOLEAN
 
