@@ -1,7 +1,7 @@
 import abc
 from typing import TypeVar, Generic, List, Any, Union
 
-from core.models import Board
+from core.models.board import Board
 from core.models.objectives import Goal, Habit, Task
 from core.models.skills import Skill
 from core.repositories import BoardRepository, GoalRepository, TaskRepository, \

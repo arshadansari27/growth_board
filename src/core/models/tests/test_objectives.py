@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from core.models import Board
+from core.models.board import Board
 from core.models.objectives import Habit, Due, Goal
 
 

@@ -1,4 +1,5 @@
-from core.models import Board, Iternary
+from core.models import Iternary
+from core.models.board import Board
 from core.services import Context, ServiceMixin
 
 

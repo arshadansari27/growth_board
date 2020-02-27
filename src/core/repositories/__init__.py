@@ -1,7 +1,7 @@
 import abc
 from typing import List
 
-from core.models import Board
+from core.models.board import Board
 from core.models.objectives import (
     Goal,
     Task,
