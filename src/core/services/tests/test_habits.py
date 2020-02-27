@@ -4,9 +4,11 @@ import random
 import pytest
 
 from core.models.objectives import PROGRESS_TYPE_VALUE, Frequency, \
-    FREQUENCY_WEEKLY
+    FREQUENCY_WEEKLY, PROGRESS_TYPE_BOOLEAN
+from core.models.skills import Skill
 from core.services import in_memory_context_factory
 from core.services.habits import HabitService
+from core.services.skills import SkillRequisiteNotMetError
 
 
 @pytest.fixture(scope='module')
@@ -19,10 +21,32 @@ def habit_service(context):
     return HabitService(context)
 
 
+def test_habit_and_skill_requisites(habit_service):
+    skill_service = habit_service.skill_service
+    skill_1 = skill_service.new('skill-test-1', 'skill-desc')
+    skill_2 = skill_service.new('skill-test-2', 'skill-desc')
+    req_1 = Skill.create_level_prerequisite(skill_1, 5)
+    req_2 = Skill.create_level_prerequisite(skill_2, 5)
+    habit = habit_service.new(
+            name='test-habit',
+            description='test-desc',
+            progress_type=PROGRESS_TYPE_BOOLEAN,
+            frequency=Frequency(FREQUENCY_WEEKLY, 3),
+            requisites=[req_1, req_2])
+    try:
+        habit_service.update_rating(habit.id)
+        raise Exception("Shouldn't update")
+    except SkillRequisiteNotMetError:
+        pass
+    skill_1.update(Skill.create_level_up_counter(skill_1, 5))
+    skill_2.update(Skill.create_level_up_counter(skill_2, 5))
+    habit_service.update_rating(habit.id)
+
+
 def test_habit_date_management(habit_service: HabitService):
     dates = [datetime.datetime(2019, 10, 1) + datetime.timedelta(days=(i))
              for i in range(50)]
-    habit = habit_service.new('test-goal', Frequency(FREQUENCY_WEEKLY, 3),
+    habit = habit_service.new('test-habit', Frequency(FREQUENCY_WEEKLY, 3),
                               PROGRESS_TYPE_VALUE, 'test-desc', )
     removes = []
     for date in dates:

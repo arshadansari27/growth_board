@@ -1,8 +1,10 @@
 import datetime
-from typing import Any
+from typing import Any, List
 
 from core.models.objectives import Goal, Task, Due
+from core.models.skills import LevelRequisite
 from core.services import Context, ServiceMixin
+from core.services.skills import SkillService
 
 
 class GoalService(ServiceMixin[Goal]):
@@ -10,6 +12,7 @@ class GoalService(ServiceMixin[Goal]):
     def __init__(self, context: Context):
         super(GoalService, self).__init__(context, Goal)
         self.task_service = TaskService(context)
+        self.skill_service = SkillService(context)
 
     @property
     def repo(self):
@@ -17,8 +20,9 @@ class GoalService(ServiceMixin[Goal]):
 
     def update_progress(self, goal_id: int, value: Any):
         goal = self.repo.get(goal_id)
-        updater = goal.get_progress_updater()
-        updater(value)
+        if goal.skill_requisites:
+            self.skill_service.check_requisites(goal.skill_requisites)
+        goal.update(value)
         return self.repo.create_update(goal)
 
     def update_due(
@@ -31,12 +35,20 @@ class GoalService(ServiceMixin[Goal]):
         goal.due = due
         return self.repo.create_update(goal)
 
-    def new(self, name, description=None, progress_type: str=None) -> Goal:
+    def new(
+            self,
+            name,
+            description=None,
+            progress_type: str=None,
+            requisites: List[LevelRequisite]=None,
+    ) -> Goal:
         goal = Goal(
                 None,
                 name=name,
                 description=description,
-                progress_type=progress_type)
+                progress_type=progress_type,
+                skill_requisites=requisites
+        )
         return self.repo.create_update(goal)
 
     def new_task(self, goal_id: int, name: str, description: str):

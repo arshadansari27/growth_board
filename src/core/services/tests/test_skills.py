@@ -20,7 +20,7 @@ def skill_service(context):
 
 def test_skill_levelling_up(skill_service: SkillService):
     skill = skill_service.new('skill-test-1', 'skill-description-1')
-    level_up_counter = Skill.create_level_up_counter(skill.id, 5)
+    level_up_counter = Skill.create_level_up_counter(skill, 5)
     skill = skill_service.level_up(level_up_counter)
     assert skill.level.current == 6
     skill = skill_service.level_up(level_up_counter)

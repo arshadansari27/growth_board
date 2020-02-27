@@ -6,6 +6,7 @@ from core.models import Iternary
 
 Level = namedtuple("Level", ['current', 'max_cap'])
 LevelCounter = namedtuple("LevelCounter", ['type', 'skill_id', 'value'])
+LevelRequisite = namedtuple("LevelCounter", ['skill_id', 'level'])
 LEVEL_UP = 'up'
 LEVEL_DOWN = 'down'
 
@@ -24,12 +25,17 @@ class Skill(Iternary):
             raise NotImplementedError
 
     @staticmethod
-    def create_level_up_counter(skill_id: int, count: int):
-        return LevelCounter(LEVEL_UP, skill_id, count)
+    def create_level_prerequisite(skill: "Skill", required_level: int):
+        assert required_level <= skill.level.max_cap
+        return LevelRequisite(skill.id, required_level)
 
     @staticmethod
-    def create_level_down_counter(skill_id, count):
-        return LevelCounter(LEVEL_DOWN, skill_id, count)
+    def create_level_up_counter(skill: "Skill", count: int):
+        return LevelCounter(LEVEL_UP, skill.id, count)
+
+    @staticmethod
+    def create_level_down_counter(skill: "Skill", count):
+        return LevelCounter(LEVEL_DOWN, skill.id, count)
 
     def _up(self, level_up: int):
         if self.level.max_cap <= (self.level.current + level_up):

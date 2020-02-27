@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List, Dict, Set, Any, Union
 
 from core.models import Iternary
+from core.models.skills import LevelRequisite
 
 PROGRESS_TYPE_TASK = 'tasks'
 PROGRESS_TYPE_VALUE = 'value'
@@ -39,6 +40,7 @@ class Goal(Objective):
     tasks: Set[Task] = None
     progress: int = None
     progress_type: str = None
+    skill_requisites: List[LevelRequisite] = None
 
     def __post_init__(self):
         if not self.progress_type:
@@ -54,31 +56,30 @@ class Goal(Objective):
             return
         self.tasks.remove(task)
 
-    def get_progress_updater(self):
-
-        def update_value(value):
+    def update(self, value):
+        def update_value():
             if (self.progress + value) >= 100:
                 self.progress = 100
             else:
                 self.progress += value
 
-        def update_boolean(bool):
-            if bool:
+        def update_boolean():
+            if value:
                 self.progress = 100
             else:
                 self.progress = 0
 
-        def update_task(_):
+        def update_task():
             value = sum([1 if t.progress == 100 else 0 for t in self.tasks])
             count = len(self.tasks)
             self.progress = int((float(value) / count) * 100)
 
         if self.progress_type == PROGRESS_TYPE_BOOLEAN:
-            return update_boolean
+            update_boolean()
         elif self.progress_type == PROGRESS_TYPE_TASK:
-            return update_task
+            update_task()
         elif self.progress_type == PROGRESS_TYPE_VALUE:
-            return update_value
+            update_value()
         else:
             raise NotImplementedError
 
@@ -106,6 +107,7 @@ class Habit(Objective):
     progress_type: str = None
     rating: int = None
     frequency: Frequency = None
+    skill_requisites: List[LevelRequisite] = None
 
     def __post_init__(self):
         if not self.progress_type:
