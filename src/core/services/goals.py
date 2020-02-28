@@ -2,7 +2,7 @@ import datetime
 from typing import Any, List
 
 from core.models.objectives import Goal, Task, Due
-from core.models.skills import LevelRequisite
+from core.models.skills import LevelRequisite, LevelCounter
 from core.services import Context, ServiceMixin
 from core.services.skills import SkillService
 
@@ -23,6 +23,9 @@ class GoalService(ServiceMixin[Goal]):
         if goal.skill_requisites:
             self.skill_service.check_requisites(goal.skill_requisites)
         goal.update(value)
+        if goal.skill_requisites and goal.progress >= 100:
+            for reward in goal.skill_rewards:
+                self.skill_service.level_up(reward)
         return self.repo.create_update(goal)
 
     def update_due(
@@ -41,13 +44,15 @@ class GoalService(ServiceMixin[Goal]):
             description=None,
             progress_type: str=None,
             requisites: List[LevelRequisite]=None,
+            rewards: List[LevelCounter] = None,
     ) -> Goal:
         goal = Goal(
                 None,
                 name=name,
                 description=description,
                 progress_type=progress_type,
-                skill_requisites=requisites
+                skill_requisites=requisites,
+                skill_rewards=rewards,
         )
         return self.repo.create_update(goal)
 

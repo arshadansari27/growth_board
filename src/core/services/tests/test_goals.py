@@ -24,17 +24,23 @@ def task_service(context):
     return TaskService(context)
 
 
-def test_goal_and_skill_requisites(goal_service):
+def test_goal_and_skill_requisites_and_rewards(goal_service):
     skill_service = goal_service.skill_service
     skill_1 = skill_service.new('skill-test-1', 'skill-desc')
     skill_2 = skill_service.new('skill-test-2', 'skill-desc')
     req_1 = Skill.create_level_prerequisite(skill_1, 5)
     req_2 = Skill.create_level_prerequisite(skill_2, 5)
+    skill_3 = skill_service.new('skill-test-3', 'skill-desc')
+    rew = Skill.create_level_up_counter(skill_3, 5)
     goal = goal_service.new(
             'test-goal',
             'test-desc',
             PROGRESS_TYPE_BOOLEAN,
-            requisites=[req_1, req_2])
+            requisites=[req_1, req_2],
+            rewards=[rew]
+    )
+    s = skill_service.get(goal.skill_rewards[0].skill_id)
+    assert s < 5
     try:
         goal_service.update_progress(goal.id, 10)
         raise Exception("Shouldn't update")
@@ -42,7 +48,9 @@ def test_goal_and_skill_requisites(goal_service):
         pass
     skill_1.update(Skill.create_level_up_counter(skill_1, 5))
     skill_2.update(Skill.create_level_up_counter(skill_2, 5))
-    goal_service.update_progress(goal.id, 10)
+    goal = goal_service.update_progress(goal.id, True)
+    s = skill_service.get(goal.skill_rewards[0].skill_id)
+    assert s >= 5
 
 
 def test_goal_and_tasks(goal_service, task_service):

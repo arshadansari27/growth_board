@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Dict, Set, Any, Union
 
 from core.models import Iternary
-from core.models.skills import LevelRequisite
+from core.models.skills import LevelRequisite, LevelCounter
 
 PROGRESS_TYPE_TASK = 'tasks'
 PROGRESS_TYPE_VALUE = 'value'
@@ -41,6 +41,7 @@ class Goal(Objective):
     progress: int = None
     progress_type: str = None
     skill_requisites: List[LevelRequisite] = None
+    skill_rewards: List[LevelCounter] = None
 
     def __post_init__(self):
         if not self.progress_type:
@@ -108,6 +109,7 @@ class Habit(Objective):
     rating: int = None
     frequency: Frequency = None
     skill_requisites: List[LevelRequisite] = None
+    skill_rewards: List[LevelCounter] = None
 
     def __post_init__(self):
         if not self.progress_type:

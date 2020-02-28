@@ -56,3 +56,28 @@ class Skill(Iternary):
 
     def __hash__(self):
         return hash(self.id)
+
+    def __eq__(self, other):
+        if isinstance(other, int) or isinstance(other, float):
+            return self.level.current == other
+        return super(Skill, self).__eq__(other)
+
+    def __lt__(self, other):
+        if isinstance(other, int) or isinstance(other, float):
+            return self.level.current < other
+        return super(Skill, self).__lt__(other)
+
+    def __le__(self, other):
+        if isinstance(other, int) or isinstance(other, float):
+            return self.level.current <= other
+        return super(Skill, self).__le__(other)
+
+    def __gt__(self, other):
+        if isinstance(other, int) or isinstance(other, float):
+            return self.level.current > other
+        return super(Skill, self).__gt__(other)
+
+    def __ge__(self, other):
+        if isinstance(other, int) or isinstance(other, float):
+            return self.level.current >= other
+        return super(Skill, self).__ge__(other)

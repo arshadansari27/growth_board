@@ -27,12 +27,19 @@ def test_habit_and_skill_requisites(habit_service):
     skill_2 = skill_service.new('skill-test-2', 'skill-desc')
     req_1 = Skill.create_level_prerequisite(skill_1, 5)
     req_2 = Skill.create_level_prerequisite(skill_2, 5)
+    skill_3 = skill_service.new('skill-test-3', 'skill-desc')
+    rew = Skill.create_level_up_counter(skill_3, 5)
     habit = habit_service.new(
             name='test-habit',
             description='test-desc',
             progress_type=PROGRESS_TYPE_BOOLEAN,
-            frequency=Frequency(FREQUENCY_WEEKLY, 3),
-            requisites=[req_1, req_2])
+            frequency=Frequency(FREQUENCY_WEEKLY, 1),
+            requisites=[req_1, req_2],
+            rewards=[rew])
+    s = skill_service.get(habit.skill_rewards[0].skill_id)
+    assert s < 5
+    habit = habit_service.add_or_update_event(
+            habit.id, datetime.datetime.now(), True)
     try:
         habit_service.update_rating(habit.id)
         raise Exception("Shouldn't update")
@@ -40,7 +47,9 @@ def test_habit_and_skill_requisites(habit_service):
         pass
     skill_1.update(Skill.create_level_up_counter(skill_1, 5))
     skill_2.update(Skill.create_level_up_counter(skill_2, 5))
-    habit_service.update_rating(habit.id)
+    habit = habit_service.update_rating(habit.id)
+    s = skill_service.get(habit.skill_rewards[0].skill_id)
+    assert s >= 5
 
 
 def test_habit_date_management(habit_service: HabitService):

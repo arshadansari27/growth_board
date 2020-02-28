@@ -3,7 +3,7 @@ from typing import Any, List
 
 from core.models.objectives import Habit, PROGRESS_TYPE_BOOLEAN, \
     PROGRESS_TYPE_VALUE, Frequency
-from core.models.skills import LevelRequisite
+from core.models.skills import LevelRequisite, LevelCounter
 from core.services import Context, ServiceMixin
 from core.services.skills import SkillService
 
@@ -24,6 +24,7 @@ class HabitService(ServiceMixin[Habit]):
             frequency: Frequency,
             progress_type: str,
             requisites: List[LevelRequisite]=None,
+            rewards: List[LevelCounter]=None,
             description=None,
     ) -> Habit:
         habit = Habit(
@@ -33,6 +34,7 @@ class HabitService(ServiceMixin[Habit]):
                 description=description,
                 progress_type=progress_type,
                 skill_requisites=requisites,
+                skill_rewards=rewards,
         )
         return self.repo.create_update(habit)
 
@@ -41,6 +43,9 @@ class HabitService(ServiceMixin[Habit]):
         if habit.skill_requisites:
             self.skill_service.check_requisites(habit.skill_requisites)
         habit.update_rating()
+        if habit.skill_requisites and habit.rating >= 1:
+            for reward in habit.skill_rewards:
+                self.skill_service.level_up(reward)
         return self.repo.create_update(habit)
 
     def add_or_update_event(self, habit_id: int, date: datetime, value: Any):
