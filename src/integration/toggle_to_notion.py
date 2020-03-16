@@ -6,9 +6,8 @@ from requests.auth import HTTPBasicAuth
 from integration import create_date, _FORMAT
 from integration.notion_api import update_toggl
 
-URL = "https://toggl.com/reports/api/v2/summary?user_agent=arshadansari27" \
-      "@gmail.com&workspace_id=2729438"
-api_key = 'fd88c66e298545509d5fbc57a9479802'
+URL = "TOGGL_URL"
+api_key = 'TOGGL_KEY'
 
 def get_url(since, until):
       return URL + f"&since={since}&until={until}"
@@ -44,5 +43,5 @@ def get_weeks_of_data(date_today: datetime, weeks: int=4):
 
 if __name__ == '__main__':
       data = get_weeks_of_data(datetime(2020, 3, 15))
-      toggle_view_url = 'https://www.notion.so/2b7c94c7841343148d1869852a4bddb6?v=53f8d4fe064942739c849b6e0067bc04'
+      toggle_view_url = 'NOTION_TOGGL_URL'
       update_toggl(data, toggle_view_url)

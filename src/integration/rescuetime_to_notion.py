@@ -8,7 +8,7 @@ import requests
 from integration import create_date, _FORMAT
 from integration.notion_api import update_rescue_time
 
-URL = 'https://www.rescuetime.com/anapi/data?key=B63gcYGUWbQJy0JzDGwy5FVXCDiLZrCPttBGYMTR&perspective=interval'
+URL = 'RESCUETIME_URL'
 KEYS =['Date', 'Time Spent (seconds)', 'Number of People', 'Activity',
          'Category', 'Productivity']
 [DATE, TIME_SPENT, PEOPLE, ACTIVITY, CATEGORY, PRODUCTIVITY] = KEYS
@@ -58,7 +58,7 @@ def get_weeks_of_data(date_today: datetime, weeks: int=4):
 
 if __name__ == '__main__':
     category = get_weeks_of_data(datetime.now(), 8)
-    category_view_url = "https://www.notion.so/f68edae8ae294d34875e0e02817d8cc2?v=3a6aaac9729140caabf30b26389597ad"
+    category_view_url = "NOTION_RESCUETIME_URL"
     dates = sorted(category.keys())
     _data = {u: v for u, v in category.items() if u in dates[-4:]}
     print(sorted(_data.keys()))

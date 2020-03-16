@@ -53,5 +53,5 @@ def untag(tags):
 
 
 if __name__ == '__main__':
-    link = 'https://www.notion.so/95a1ff46a6154e1a9dac0d55fb11af5d?v=e088739df97d4faab0f24556fa59ab7a'
+    link = 'NOTION_CLICKUP_URL'
     update_projects_and_tasks([u for u in get_projects_and_tasks()], link)

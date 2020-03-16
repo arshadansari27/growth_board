@@ -7,6 +7,40 @@ TOKEN = "76c45addb4795e4e324231c33610975e4aadf213f43b062bac51316343bfc7001e17053
 client = NotionClient(token_v2=TOKEN)
 
 
+def update_jira(issues, context, view_url):
+    view = client.get_collection_view(view_url)
+    assert view is not None
+    rows = view.collection.get_rows()
+    existing = {r.title: r for r in rows}
+    count = len(issues)
+    print("Created", len(existing), 'and todo', count)
+    all_components = set()
+    all_status = set()
+    for issue in issues:
+        created = NotionDate(issue['created'])
+        updated = NotionDate(issue['updated'])
+        row = existing.get(issue['key'])
+        if not row:
+            row = view.collection.add_row()
+            row.title = issue['key']
+        row.created = created
+        row.updated = updated
+        row.link = issue['link']
+        row.type = issue['type']
+        row.subtask = issue['subtask']
+        row.components = str(issue['components'])
+        all_components |= set(issue['components'])
+        row.description = issue['description']
+        row.summary = issue['title']
+        row.status = issue['status']
+        all_status.add(issue['status'])
+        row.parent = issue['parent']
+        row.project_key = issue['project_key']
+        row.project = issue['project']
+        row.context = context
+    print(all_components)
+    print(all_status)
+
 def update_projects_and_tasks(data, view_url):
     view = client.get_collection_view(view_url)
     assert view is not None
