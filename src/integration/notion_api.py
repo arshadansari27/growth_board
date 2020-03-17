@@ -1,3 +1,4 @@
+from notion.block import TodoBlock, TextBlock, SubheaderBlock, DividerBlock
 from notion.client import NotionClient
 from notion.collection import NotionDate
 
@@ -7,14 +8,43 @@ TOKEN = CONFIG["NOTION_TOKEN"]
 
 
 client = NotionClient(token_v2=TOKEN)
+def get_client():
+    return client
 
+def update_project_info(cards):
+    view_url = CONFIG['NOTION_PROJECT_URL']
+    view = client.get_collection_view(view_url)
+    assert view is not None and view.collection is not None
+    rows = list(view.collection.get_rows())
+    existing = {r.title: r for r in rows}
+    for card in cards.values():
+        if card.project in existing:
+            row = existing[card.project]
+        else:
+            row = view.collection.add_row()
+            row.title = card.project
+        row.Done = card.done
+        row.Total = card.total
+        row.SubDone = card.sub_done
+        row.SubTotal = card.sub_total
+        row.Type = card.type
+        page = client.get_block(row.id)
+        for c in page.children:
+            c.remove(permanently=True)
+        page.children.add_new(SubheaderBlock, title="Current")
+        for text in card.on_going:
+            page.children.add_new(TodoBlock, title=text)
+        page.children.add_new(DividerBlock)
+        page.children.add_new(SubheaderBlock, title="Coming Up Next")
+        for text in card.up_next:
+            page.children.add_new(TodoBlock, title=text)
 
+'''
 def update_jira(issues, context, view_url):
     view = client.get_collection_view(view_url)
     assert view is not None and view.collection is not None
     rows = view.collection.get_rows()
     existing = {r.title: r for r in rows}
-    print('\n'.join(existing))
     count = len(issues)
     print("Created", len(existing), 'and todo', count)
     all_components = set()
@@ -83,52 +113,58 @@ def update_projects_and_tasks(data, view_url):
             list, project, schedule, status, tags)
         print('\tDone: ', row.title, 'on', schedule, date_due, date_start)
     print('Done...')
+'''
 
-
-def update_toggl(data, view_url):
+def update_toggl(data):
+    view_url = CONFIG['NOTION_TOGGL_URL']
     view = client.get_collection_view(view_url)
-    assert view is not None
-    dates = sorted(data.keys())
-    weeks = [data[dates[i]] for i in range(4)]
-    actual_keys = _generate_keys(*weeks)
+    assert view is not None and view.collection is not None
+    date = sorted(data.keys())[-1]
+    week = data[date]
+    actual_keys = week.keys()
     rows = view.collection.get_rows()
-    for project, _client in actual_keys:
-        if not rows or project not in {r.title for r in rows}:
+    existing = {r.title: r for r in rows}
+    for _client in actual_keys:
+        if not _client:
+            print(_client, 'skipping...')
+            continue
+        print(_client, 'beginning...')
+        existing_client = existing.get(_client)
+        print('\t', existing_client)
+        if not existing_client:
             row = view.collection.add_row()
-            row.title = project
-            row.Client = _client
+            row.title = _client
+            print('\tCreating')
         else:
-            row = [r for r in rows if r.title == project][0]
-        [rw1, rw2, rw3, rw4] = [round(week.get((project, _client), 0), 2) for
-                                week in weeks]
-        row.Week1, row.Week2, row.Week3, row.Week4 = rw1, rw2, rw3, rw4
-        print(project, _client, 'done')
+            row = existing_client
+            print('\tUpdating')
+        row.Toggl = round(week.get(_client, 0), 2)
+        print(_client, 'done')
     print('Done...')
 
 
-def update_rescue_time(data, view_url):
+def update_rescue_time(data):
+    view_url = CONFIG["NOTION_RESCUETIME_URL"]
     view = client.get_collection_view(view_url)
     assert view is not None
-    dates = sorted(data.keys())
-    weeks = [data[dates[i]] for i in range(4)]
-    actual_keys = _generate_keys(*weeks)
+    date = sorted(data.keys())[-1]
+    week = dict(data[date])
+    actual_keys = week.keys()
     rows = view.collection.get_rows()
+    for row in rows:
+        row.remove()
     for key in actual_keys:
-        if not rows or key not in {r.title for r in rows}:
-            row = view.collection.add_row()
-            row.title = key
-        else:
-            row = [r for r in rows if r.title == key][0]
-        [rw1, rw2, rw3, rw4] = [round(week.get(key, 0), 2) for week in weeks]
-        row.Week1, row.Week2, row.Week3, row.Week4 = rw1, rw2, rw3, rw4
+        row = view.collection.add_row()
+        row.title = key
+        row.Week4 = round(week.get(key, 0), 2)
         print(key, 'done')
     print('Done...')
 
 
-def _generate_keys(*dicts):
+def _generate_keys(*weeks):
     actual_keys = set()
-    for d in dicts:
-        actual_keys |= set(d.keys())
+    for d in weeks:
+        actual_keys |= set([u[0] for u in d])
     return actual_keys
 
 

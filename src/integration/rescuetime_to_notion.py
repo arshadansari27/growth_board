@@ -43,24 +43,30 @@ def by_activity(dict_data):
 
 def convert_to_dict(list_of_dicts):
     by_date_category = defaultdict(float)
+    by_date_activity = defaultdict(float)
     for u in list_of_dicts:
         c, a, t = by_activity(u)
         by_date_category[c] += t
-    return by_date_category
+        by_date_activity[a] += t
+    return by_date_category, by_date_activity
 
 
 def get_weeks_of_data(date_today: datetime, weeks: int=4):
     category_by_date = {}
+    activity_by_date = {}
     for td in range(weeks):
         dt = date_today - timedelta(days=(td * 7))
-        categories = convert_to_dict(list(get_data(dt)))
-        category_by_date[dt.strftime(_FORMAT)] = categories
-    return category_by_date
+        categories, activity = convert_to_dict(list(get_data(dt)))
+        category_by_date[dt.strftime(_FORMAT)] = sorted(
+            [(u, v) for u, v in categories.items()],
+            key=lambda x: x[1], reverse=True)[:5]
+        activity_by_date[dt.strftime(_FORMAT)] = sorted(
+                [(u, v) for u, v in activity.items()],
+                key=lambda x: x[1], reverse=True)[:5]
+    return category_by_date, activity_by_date
 
-if __name__ == '__main__':
-    category = get_weeks_of_data(datetime.now(), 8)
-    category_view_url = CONFIG["NOTION_RESCUETIME_URL"]
-    dates = sorted(category.keys())
-    _data = {u: v for u, v in category.items() if u in dates[-4:]}
-    print(sorted(_data.keys()))
-    update_rescue_time(_data, category_view_url)
+def update_apps():
+    _, activity = get_weeks_of_data(datetime.now(), 2)
+    update_rescue_time(activity)
+
+

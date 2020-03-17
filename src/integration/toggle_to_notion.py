@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import datetime, timedelta
 
 import requests
@@ -21,16 +22,23 @@ def get_data(date_today: datetime):
       print(url)
       data = requests.get(url, auth=auth)
       data = data.json()['data']
-      data = dict([u for u in [to_proect(u) for u in data] if (u[0][0] and u[0][
-          1])])
-      return data
+      data = [u for u in [to_proect(u) for u in data] if u[0]]
+      return aggregate_data(data)
+
 
 def to_proect(dict_data):
-     project = dict_data['title']['project']
+     #project = dict_data['title']['project']
+     #color = dict_data['title']['hex_color']
      client = dict_data['title']['client']
-     color = dict_data['title']['hex_color']
      time = dict_data['time']
-     return (project, client), time / (3600 * 1000)
+     return client, time / (3600 * 1000)
+
+
+def aggregate_data(data):
+    by_client = defaultdict(list)
+    for c, t in data:
+        by_client[c].append(t)
+    return {c: sum(t) for c, t in by_client.items()}
 
 
 def get_weeks_of_data(date_today: datetime, weeks: int=4):
@@ -42,7 +50,7 @@ def get_weeks_of_data(date_today: datetime, weeks: int=4):
     return project_by_date
 
 
-if __name__ == '__main__':
-      data = get_weeks_of_data(datetime(2020, 3, 15))
-      toggle_view_url = CONFIG['NOTION_TOGGL_URL']
-      update_toggl(data, toggle_view_url)
+def update_hotspots():
+    data = get_weeks_of_data(datetime(2020, 3, 15))
+    update_toggl(data)
+
