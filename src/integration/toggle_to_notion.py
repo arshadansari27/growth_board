@@ -3,11 +3,12 @@ from datetime import datetime, timedelta
 import requests
 from requests.auth import HTTPBasicAuth
 
+from config import CONFIG
 from integration import create_date, _FORMAT
 from integration.notion_api import update_toggl
 
-URL = "TOGGL_URL"
-api_key = 'TOGGL_KEY'
+URL = CONFIG["TOGGL_URL"]
+api_key = CONFIG['TOGGL_KEY']
 
 def get_url(since, until):
       return URL + f"&since={since}&until={until}"
@@ -43,5 +44,5 @@ def get_weeks_of_data(date_today: datetime, weeks: int=4):
 
 if __name__ == '__main__':
       data = get_weeks_of_data(datetime(2020, 3, 15))
-      toggle_view_url = 'NOTION_TOGGL_URL'
+      toggle_view_url = CONFIG['NOTION_TOGGL_URL']
       update_toggl(data, toggle_view_url)

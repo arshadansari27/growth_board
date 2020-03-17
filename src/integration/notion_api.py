@@ -1,7 +1,9 @@
 from notion.client import NotionClient
 from notion.collection import NotionDate
 
-TOKEN = "76c45addb4795e4e324231c33610975e4aadf213f43b062bac51316343bfc7001e17053c3c65e87bc4375b9a525f9cd4f544cf9b1dc7b5cadcf534851e03105b4ffed4e936726b948d4d5048c405"
+from config import CONFIG
+
+TOKEN = CONFIG["NOTION_TOKEN"]
 
 
 client = NotionClient(token_v2=TOKEN)

@@ -1,3 +1,4 @@
+from config import CONFIG
 from integration.notion_api import update_projects_and_tasks
 from dateutil import parser
 
@@ -53,5 +54,5 @@ def untag(tags):
 
 
 if __name__ == '__main__':
-    link = 'NOTION_CLICKUP_URL'
+    link = CONFIG['NOTION_CLICKUP_URL']
     update_projects_and_tasks([u for u in get_projects_and_tasks()], link)

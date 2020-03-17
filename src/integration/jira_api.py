@@ -1,6 +1,7 @@
 from dateutil import parser
 from jira import JIRA
 
+from config import CONFIG
 from integration.notion_api import update_jira
 
 
@@ -52,6 +53,6 @@ jira = JIRA(
 
 
 if __name__ == '__main__':
-    URL = 'NOTION_JIRA_URL'
+    URL = CONFIG['NOTION_JIRA_URL']
     issues = [convert_issue(i) for i in jira.search_issues('assignee in (arshad)')]
     update_jira(issues, 'Office', URL)
