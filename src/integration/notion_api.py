@@ -11,9 +11,10 @@ client = NotionClient(token_v2=TOKEN)
 
 def update_jira(issues, context, view_url):
     view = client.get_collection_view(view_url)
-    assert view is not None
+    assert view is not None and view.collection is not None
     rows = view.collection.get_rows()
     existing = {r.title: r for r in rows}
+    print('\n'.join(existing))
     count = len(issues)
     print("Created", len(existing), 'and todo', count)
     all_components = set()
@@ -22,15 +23,21 @@ def update_jira(issues, context, view_url):
         created = NotionDate(issue['created'])
         updated = NotionDate(issue['updated'])
         row = existing.get(issue['key'])
+        creating = False
         if not row:
             row = view.collection.add_row()
             row.title = issue['key']
+            creating = True
+        elif row.updated and row.updated.start.replace(tzinfo=None) >= updated.start.replace(tzinfo=None):
+            print("Skipping issue as it was not updated:", issue['title'])
+            continue
+        print("Creating" if creating else 'Updating', '->',row.title)
         row.created = created
         row.updated = updated
         row.link = issue['link']
         row.type = issue['type']
         row.subtask = issue['subtask']
-        row.components = str(issue['components'])
+        row.components = issue['components']
         all_components |= set(issue['components'])
         row.description = issue['description']
         row.summary = issue['title']

@@ -1,6 +1,8 @@
-CONFIG = dict()
+import pathlib
 
-with open('envfile', 'r') as infile:
+CONFIG = dict()
+PATH = pathlib.Path(__file__).absolute().parent / 'envfile'
+with open(PATH, 'r') as infile:
     for line in infile.readlines():
         key = line[:line.index('=')].strip()
         value = line[line.index('=') + 1:].strip()

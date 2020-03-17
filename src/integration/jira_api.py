@@ -21,7 +21,8 @@ def get_status(issue):
     return {'status': issue['status']['name']}
 
 def get_components(issue):
-    return {'components': [u['name'] for u in issue['components']] if issue.get(
+    return {'components': [u['name'] for u in issue['components']] if
+    issue.get(
             'components') else []}
 
 def get_description(issue):
@@ -45,14 +46,23 @@ def convert_issue(issue):
     _issue.update(get_title(issue))
     return _issue
 
-options = {'server': 'JIRA_STOCKY_URL'}
-jira = JIRA(
+def get_stocky_jira():
+    options = {'server': CONFIG['JIRA_STOCKY_URL']}
+    jira = JIRA(
         options=options,
-        basic_auth=('JIRA_STOCKY_USER', 'JIRA_STOCKY_KEY'))
+        basic_auth=(CONFIG['JIRA_STOCKY_USER'], CONFIG['JIRA_STOCKY_KEY']))
+    return jira, 'assignee in (arshad)'
 
-
+def get_personal_jira():
+    options = {'server': CONFIG['JIRA_PERSONAL_URL']}
+    jira = JIRA(
+            options=options,
+            basic_auth=(CONFIG['JIRA_PERSONAL_USER'], CONFIG[
+                'JIRA_PERSONAL_KEY']))
+    return jira, 'assignee in (557058:1184cd39-650a-4c1e-bd35-3a54abc2c637)'
 
 if __name__ == '__main__':
     URL = CONFIG['NOTION_JIRA_URL']
-    issues = [convert_issue(i) for i in jira.search_issues('assignee in (arshad)')]
-    update_jira(issues, 'Office', URL)
+    jira, search = get_personal_jira()
+    issues = [convert_issue(i) for i in jira.search_issues(search)]
+    update_jira(issues, 'Personal', URL)
