@@ -1,6 +1,4 @@
 from config import CONFIG
-from integration.notion_api import update_projects_and_tasks
-from dateutil import parser
 
 FILE = '/Users/arshad/Desktop/clickup.csv'
 import csv
@@ -32,21 +30,22 @@ with open(FILE) as csv_file:
         ALL_TASKS[n_dict[T_ID]] = n_dict
 
 def get_projects_and_tasks():
+    relative_attributes = {
+        'List Name',
+        'Task Name',
+        'Tags',
+    }
     for tid, task in ALL_TASKS.items():
-        if task[PARENT] or task[SPACE] != 'Projects & Tasks':
+        if task['Space Name'] == 'Projects & Tasks':
             continue
-        due_date = parser.parse(task[DATE_DUE]) if task[DATE_DUE] else None
-        start_date = parser.parse(task[DATE_START]) if task[DATE_START] else None
-        tags = untag(task[TAGS])
-        yield (
-            task[TASK],
-            task[LIST],
-            task[PROJECT],
-            task[STATUS],
-            due_date if (due_date or start_date) else None,
-            start_date if (due_date or start_date) else None,
-            tags,
-        )
+        task[TAGS] = untag(task[TAGS])
+        tags = task[TAGS]
+        if any(u in tags for u in {'study topic'}):
+            continue
+        _task = sorted([(u,  v) for u, v in task.items() if u in \
+                                                        relative_attributes])
+        _task = [u[1] for u in _task]
+        print(_task[-1])
 
 
 def untag(tags):
@@ -55,4 +54,4 @@ def untag(tags):
 
 if __name__ == '__main__':
     link = CONFIG['NOTION_CLICKUP_URL']
-    update_projects_and_tasks([u for u in get_projects_and_tasks()], link)
+    get_projects_and_tasks()
