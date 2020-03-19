@@ -1,9 +1,8 @@
-import json
 from collections import defaultdict
 from datetime import datetime, timedelta
-from dateutil import parser
 
 import requests
+from dateutil import parser
 
 from config import CONFIG
 from integration import create_date, _FORMAT

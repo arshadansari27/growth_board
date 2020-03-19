@@ -42,7 +42,7 @@ def update_project_info(cards):
 
 
 def update_calendar(data):
-    url = "https://www.notion.so/Today-3ce613a16a7d4b4889bba2051507599c#f1e0641d11c048208bf9a4457c330fa5"
+    url = CONFIG["NOTION_CALENDAR_URL"]
     block = client.get_block(url)
     tt = lambda _u: f'0{_u}' if _u < 10 else f'{_u}'
     lines = "**Schedule for the day**\n"

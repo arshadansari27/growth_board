@@ -11,6 +11,7 @@ from integration.notion_api import update_toggl
 URL = CONFIG["TOGGL_URL"]
 api_key = CONFIG['TOGGL_KEY']
 
+
 def get_url(since, until):
       return URL + f"&since={since}&until={until}"
 
@@ -27,8 +28,6 @@ def get_data(date_today: datetime):
 
 
 def to_proect(dict_data):
-     #project = dict_data['title']['project']
-     #color = dict_data['title']['hex_color']
      client = dict_data['title']['client']
      time = dict_data['time']
      return client, time / (3600 * 1000)

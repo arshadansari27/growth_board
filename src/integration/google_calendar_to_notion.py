@@ -1,21 +1,22 @@
 from __future__ import print_function
+
 import datetime
-import pickle
 import os.path
-from pathlib import Path
+import pickle
 
 from dateutil import parser
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+
+from config import CONFIG
 from integration.notion_api import update_calendar
 
 PERSONAL = 'Personal'
 OFFICE = 'Office'
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
-BASE = Path(__file__).absolute().parent.parent
-CREDS_PATH_OFFICE =  BASE / "credentials-stockopedia.json"
-CREDS_PATH_PERSONAL = BASE / "credentials-arshadansari27.json"
+CREDS_PATH_OFFICE =  CONFIG["GOOGLE_CREDS_OFFICE_PATH"]
+CREDS_PATH_PERSONAL = CONFIG["GOOGLE_CREDS_PERSONAL_PATH"]
 
 
 def get_path(context):
