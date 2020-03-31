@@ -5,7 +5,6 @@ from notion.collection import NotionDate
 
 from config import CONFIG
 from integration import DB
-from integration.calendar_google_api import GoogleCalendarData
 
 TOKEN = CONFIG["NOTION_TOKEN"]
 
