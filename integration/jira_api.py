@@ -4,9 +4,7 @@ from typing import List
 from jira import JIRA
 from notion.block import CalloutBlock
 
-from config import CONFIG, JIRA_STOCKY_URL, JIRA_STOCKY_USER, JIRA_STOCKY_KEY, \
-    NOTION_TASKS_URL, NOTION_PROJECT_URL
-from notion_api import NotionDB
+from config import CONFIG, JIRA_STOCKY_URL, JIRA_STOCKY_USER, JIRA_STOCKY_KEY
 
 PERSONAL = 'Personal'
 OFFICE = 'Office'

@@ -1,7 +1,7 @@
 from notion.block import CollectionViewBlock
 
 from config import CONFIG
-from integration.notion_api import NotionDB
+from notion_api import NotionDB
 
 TASK_PROPERTY = '@qm>'
 BOOK_PROPERTY = '*fnW'
