@@ -1,4 +1,5 @@
 from config import CONFIG
+from integration.notion_api import update_study
 
 FILE = '/Users/arshad/Desktop/clickup.csv'
 import csv
@@ -29,23 +30,28 @@ with open(FILE) as csv_file:
                   CARE_ABOUT_ATTRS}
         ALL_TASKS[n_dict[T_ID]] = n_dict
 
-def get_projects_and_tasks():
+def update_from_clickup():
     relative_attributes = {
         'List Name',
         'Task Name',
         'Tags',
     }
+    categories = set()
     for tid, task in ALL_TASKS.items():
-        if task['Space Name'] == 'Projects & Tasks':
+        if task['Space Name'] != 'Goals':
             continue
         task[TAGS] = untag(task[TAGS])
         tags = task[TAGS]
-        if any(u in tags for u in {'study topic'}):
+        if not any(u in tags for u in {'book', 'course'}):
             continue
-        _task = sorted([(u,  v) for u, v in task.items() if u in \
-                                                        relative_attributes])
-        _task = [u[1] for u in _task]
-        print(_task[-1])
+        _task = sorted([
+            (u,  v) for u, v in task.items()
+            if u in relative_attributes])
+        task_dict = dict(_task)
+        category = task_dict['List Name']
+        tag = 'book' if 'book' in tags else 'course'
+        name = task_dict['Task Name']
+        yield (name, tag, category)
 
 
 def untag(tags):
@@ -53,5 +59,4 @@ def untag(tags):
 
 
 if __name__ == '__main__':
-    link = CONFIG['NOTION_CLICKUP_URL']
-    get_projects_and_tasks()
+    update_study(update_from_clickup())

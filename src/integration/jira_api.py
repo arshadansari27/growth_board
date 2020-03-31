@@ -1,120 +1,167 @@
 from dataclasses import dataclass
-from typing import List, Callable, Tuple, Any
+from typing import List
 
-from dateutil import parser
 from jira import JIRA
+from notion.block import CalloutBlock
 
 from config import CONFIG
-from integration.notion_api import update_project_info
+from integration.notion_api import NotionDB
+
+PERSONAL = 'Personal'
+OFFICE = 'Office'
 
 
 @dataclass
 class Card:
+    context: str
+    key: str
+    name: str
+    description: str
     type: str
-    project: str
-    on_going: List[str]
-    up_next: List[str]
-    done: int = 0
-    total: int = 0
-    sub_done: int = 0
-    sub_total: int = 0
+    project_name: str
+    sub_task: bool
+    status: str
+    done: bool
+    init: bool
+    link: str
+    scheduled: str = None
+    parent: str = None
+    components: List[str] = None
+    epic: str = None
+    priority: int = None
+    priority_name: str = None
+
+    def __repr__(self):
+        return f"[{self.type}]: {self.name} ({self.status})"
 
 
-def convert_issue(issue):
-    def get_type(issue):
-        return {'type': issue['issuetype']['name'],
-                'subtask': issue['issuetype']['subtask']}
+class JiraContextMgr:
+    def __init__(self, context, config):
+        self.context = context
+        url, user, key, query = config
+        options = {'server': url}
+        self.jira = JIRA(
+                options=options,
+                basic_auth=(user, key))
+        self.query = query
 
-    def get_parent(issue):
-        return {'parent': issue.get('parent', {}).get('key')}
+    def get_cards(self) -> List[Card]:
+        cards = [convert_issue(self.context, i) for i in
+                 self.jira.search_issues(self.query)]
+        return cards
 
-    def get_project(issue):
-        return {'project': issue['project']['name'],
-                'project_key': issue['project']['key']}
+    @classmethod
+    def get_jira(cls, context):
 
-    def get_create_update_dates(issue):
-        return {'created': parser.parse(issue['created']),
-                'updated': parser.parse(issue['updated'])}
+        if context == OFFICE:
+            url = CONFIG['JIRA_STOCKY_URL']
+            user = CONFIG['JIRA_STOCKY_USER']
+            key = CONFIG['JIRA_STOCKY_KEY']
+            query = 'assignee in (arshad)'
 
-    def get_status(issue):
-        return {'status': issue['status']['name']}
-
-    def get_components(issue):
-        return {'components': [u['name'] for u in issue['components']] if
-        issue.get(
-                'components') else []}
-
-    def get_description(issue):
-        return {'description': issue['description']}
-
-    def get_title(issue):
-        return {'title': issue['summary']}
-
-    _issue = {'key': issue.key}
-    _issue['link'] = issue.permalink()
-    issue = issue.raw['fields']
-    _issue.update(get_type(issue))
-    _issue.update(get_parent(issue))
-    _issue.update(get_project(issue))
-    _issue.update(get_create_update_dates(issue))
-    _issue.update(get_status(issue))
-    _issue.update(get_components(issue))
-    _issue.update(get_description(issue))
-    _issue.update(get_title(issue))
-    return _issue
-
-
-def get_stocky_jira() -> Tuple[JIRA, str]:
-    options = {'server': CONFIG['JIRA_STOCKY_URL']}
-    jira = JIRA(
-        options=options,
-        basic_auth=(CONFIG['JIRA_STOCKY_USER'], CONFIG['JIRA_STOCKY_KEY']))
-    return jira, 'assignee in (arshad)'
-
-
-def get_personal_jira() -> Tuple[JIRA, str]:
-    options = {'server': CONFIG['JIRA_PERSONAL_URL']}
-    jira = JIRA(
-            options=options,
-            basic_auth=(CONFIG['JIRA_PERSONAL_USER'], CONFIG[
-                'JIRA_PERSONAL_KEY']))
-    return jira, 'assignee in (557058:1184cd39-650a-4c1e-bd35-3a54abc2c637)'
-
-
-def create_cards(jira_factory: Callable[[], Tuple[JIRA, str]], context, cards):
-    jira, search = jira_factory()
-    print(context, "Getting issues")
-    issues = [convert_issue(i) for i in jira.search_issues(search)]
-    print(context, "Converting issues")
-    for issue in issues:
-        print(issue['key'])
-        if issue['project'] not in cards:
-            card = Card(context, issue['project'], [], [])
-            cards[issue['project']] = card
         else:
-            card = cards[issue['project']]
-        if issue['subtask']:
-            card.sub_total += 1
-        card.total += 1
-        key, summary, type, link = issue['key'], issue['title'], \
-                                   issue['type'], issue['link']
-        text = f"**{type}**: ***{key}*** - [{summary}]({link})"
-        if issue['status'].lower() in {'published', 'done', 'no action'}:
-            if issue['subtask']:
-                card.sub_done += 1
-            card.done += 1
-        elif issue['status'].lower() in {'in progress', 'draft'}:
-
-            card.on_going.append(text)
-        elif issue['status'].lower() == 'selected for development':
-            card.up_next.append(text)
-    print(context, "Done creating cards...", len(cards))
-    return cards
+            raise NotImplementedError
+        '''
+        if context == PERSONAL:
+            url = CONFIG['JIRA_PERSONAL_URL']
+            user = CONFIG['JIRA_PERSONAL_USER']
+            key= CONFIG['JIRA_PERSONAL_KEY']
+            query = 'assignee in (557058:1184cd39-650a-4c1e-bd35-3a54abc2c637)'
+        '''
+        return JiraContextMgr(context, (url, user, key, query))
 
 
-def update_notion_projects():
-    cards = {}
-    cards = create_cards(get_personal_jira, 'Personal', cards)
-    cards = create_cards(get_stocky_jira, 'Office', cards)
-    update_project_info(cards)
+def convert_issue(context, issue) -> Card:
+    key = issue.key.strip()
+    link = issue.permalink()
+    issue = issue.raw['fields']
+    status =  issue['status']['name']
+    type =  issue['issuetype']['name']
+    minor =  issue['issuetype']['subtask']
+    parent =  issue.get('parent', {}).get('key')
+    priority = int(issue['priority']['id'])
+    priority_name = issue['priority']['name']
+    project_name = issue['project']['name']
+    components = [u['name'] for u in issue['components']] if \
+        issue.get('components') else []
+    description = issue['description']
+    summary = issue['summary'].strip()
+    card = Card(
+        context,
+        key,
+        summary,
+        description,
+        type,
+        project_name,
+        minor,
+        status,
+        bool(status in {'Done', 'No Action', 'Published'}),
+        bool(status in {'Backlog', 'To Do'}),
+        link,
+        '',
+        parent,
+        components=components,
+        epic=None,
+        priority=priority,
+        priority_name=priority_name
+    )
+    return card
+
+
+class JiraMgr:
+    def __init__(self):
+        cards = {}
+        office = JiraContextMgr.get_jira(OFFICE)
+        for card in office.get_cards():
+            cards[card.key] = card
+        self.tasks = cards
+
+
+task_field_mapping = {
+        'context': 'context',
+        'summary': 'name',
+        'type': 'type',
+        'minor': 'sub_task',
+        'status': 'status',
+        'done': 'done',
+        'init': 'init',
+        'link': 'link',
+        'parent_name': 'parent',
+        'epic': 'epic',
+        'priority': 'priority',
+        'priority_name': 'priority_name'
+    }
+
+
+def update_notion_jira_tasks():
+    jira_mgr = JiraMgr()
+    task_db = NotionDB(CONFIG['NOTION_TASKS_URL'])
+    goal_db = NotionDB(CONFIG['NOTION_GOALS_URL'])
+    cards = list(jira_mgr.tasks.values())
+    for card in cards:
+        goal = goal_db.get_or_create(card.project_name)
+        task = task_db.get_or_create(card.key)
+        if task.goal != goal.id:
+            task.goal = goal.id
+        for k, v in task_field_mapping.items():
+            if getattr(task, k, None) != getattr(card, v, False):
+                setattr(task, k, getattr(card, v, None))
+        if card.components and sorted(card.components) != sorted(
+                task.components):
+            task.components = card.components
+        if card.description:
+            clean_and_update_page_area_of_row(card.description, task,
+                                              task_db.client)
+
+
+def clean_and_update_page_area_of_row(description, task, client):
+        block = client.get_block(task.id)
+        for child in block.children:
+            child.remove(permanently=True)
+        block.children.add_new(
+            CalloutBlock, title=f'Description\n\n{description}')
+
+
+if __name__ == '__main__':
+    update_notion_jira_tasks()
 
