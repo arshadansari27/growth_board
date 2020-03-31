@@ -20,6 +20,7 @@ class NotionDB(DB):
             for r in self.view.collection.get_rows()
         }
         self.client= client
+        print('\n'.join(self.rows.keys()))
 
     def find_one_by(self, field, query):
         if field == 'title':
@@ -89,18 +90,6 @@ class NotionCalendarDB(NotionDB):
                     timezone=pytz.FixedOffset(330)
             )
         }
-
-
-def update_toggl(data):
-    db = NotionDB(CONFIG['NOTION_TOGGL_URL'])
-    date = sorted(data.keys())[-1]
-    week = data[date]
-    actual_keys = week.keys()
-    for _client in actual_keys:
-        if not _client:
-            continue
-        client = db.get_or_create(_client)
-        client.Toggl = round(week.get(_client, 0), 2)
 
 
 def update_rescue_time(data):

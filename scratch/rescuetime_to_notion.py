@@ -6,7 +6,7 @@ from dateutil import parser
 
 from config import CONFIG
 from integration import create_date, _FORMAT
-from integration.notion_api import update_rescue_time
+from notion_api import update_rescue_time
 
 URL = CONFIG['RESCUETIME_URL']
 KEYS =['Date', 'Time Spent (seconds)', 'Number of People', 'Activity',

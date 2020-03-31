@@ -1,15 +1,13 @@
-from typing import Callable, List
+from config import CONFIG, NOTION_TASKS_URL, NOTION_PROJECT_URL
+from integration.jira_api import update_notion_jira_tasks
+from notion_api import NotionDB
 
-from config import CONFIG
-from integration.notion_api import NotionDB
 
 
-def update_tasks(external_loaders: List[Callable]):
-    task_db = NotionDB(CONFIG['NOTION_TASKS_URL'])
-
-    for loaders in external_loaders:
-        loaders()
-
+def update_tasks():
+    task_db = NotionDB(CONFIG[NOTION_TASKS_URL])
+    project_db = NotionDB(CONFIG[NOTION_PROJECT_URL])
+    update_notion_jira_tasks(task_db, project_db)
     for task in task_db.get_all():
         if not task.status and not task.done:
             task.status = 'Backlog'
@@ -20,4 +18,4 @@ def update_tasks(external_loaders: List[Callable]):
             task.parent_task = parent_task
 
 if __name__ == '__main__':
-    update_tasks([])
+    update_tasks()

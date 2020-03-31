@@ -4,13 +4,12 @@ import pytz
 import requests
 from requests.auth import HTTPBasicAuth
 
-from config import CONFIG
-from integration.notion_api import NotionDB
+from config import CONFIG, TOGGL_URL, NOTION_TRACKING_DAILY_URL, TOGGL_KEY
+from notion_api import NotionDB
 
-daily_tracking_url = CONFIG["NOTION_TRACKING_DAILY_URL"]
-toggl_url = CONFIG["TOGGL_URL"]
-api_key = CONFIG['TOGGL_KEY']
-
+daily_tracking_url = CONFIG[NOTION_TRACKING_DAILY_URL]
+toggl_url = CONFIG[TOGGL_URL]
+api_key = CONFIG[TOGGL_KEY]
 
 
 def update_daily_hotspots():

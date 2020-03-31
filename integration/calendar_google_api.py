@@ -14,8 +14,8 @@ from integration import DB
 PERSONAL = 'Personal'
 OFFICE = 'Office'
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
-CREDS_PATH_OFFICE =  CONFIG["GOOGLE_CREDS_OFFICE_PATH"]
-CREDS_PATH_PERSONAL = CONFIG["GOOGLE_CREDS_PERSONAL_PATH"]
+CREDS_PATH_OFFICE =  None
+CREDS_PATH_PERSONAL = None
 
 
 
@@ -109,7 +109,7 @@ class GoogleCalendar:
 
     @staticmethod
     def get_calendar(context):
-        from integration.notion_api import NotionCalendarDB
+        from notion_api import NotionCalendarDB
         if context == OFFICE:
             return GoogleCalendar(OFFICE, CREDS_PATH_OFFICE, NotionCalendarDB(
                     CONFIG["NOTION_CALENDAR_URL"]))

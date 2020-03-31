@@ -4,8 +4,9 @@ from typing import List
 from jira import JIRA
 from notion.block import CalloutBlock
 
-from config import CONFIG
-from integration.notion_api import NotionDB
+from config import CONFIG, JIRA_STOCKY_URL, JIRA_STOCKY_USER, JIRA_STOCKY_KEY, \
+    NOTION_TASKS_URL, NOTION_PROJECT_URL
+from notion_api import NotionDB
 
 PERSONAL = 'Personal'
 OFFICE = 'Office'
@@ -54,18 +55,18 @@ class JiraContextMgr:
     def get_jira(cls, context):
 
         if context == OFFICE:
-            url = CONFIG['JIRA_STOCKY_URL']
-            user = CONFIG['JIRA_STOCKY_USER']
-            key = CONFIG['JIRA_STOCKY_KEY']
+            url = CONFIG[JIRA_STOCKY_URL]
+            user = CONFIG[JIRA_STOCKY_USER]
+            key = CONFIG[JIRA_STOCKY_KEY]
             query = 'assignee in (arshad)'
 
         else:
             raise NotImplementedError
         '''
         if context == PERSONAL:
-            url = CONFIG['JIRA_PERSONAL_URL']
-            user = CONFIG['JIRA_PERSONAL_USER']
-            key= CONFIG['JIRA_PERSONAL_KEY']
+            url = CONFIG[JIRA_PERSONAL_URL]
+            user = CONFIG[JIRA_PERSONAL_USER]
+            key= CONFIG[JIRA_PERSONAL_KEY]
             query = 'assignee in (557058:1184cd39-650a-4c1e-bd35-3a54abc2c637)'
         '''
         return JiraContextMgr(context, (url, user, key, query))
@@ -133,19 +134,24 @@ task_field_mapping = {
     }
 
 
-def update_notion_jira_tasks():
+def update_notion_jira_tasks(task_db, project_db):
     jira_mgr = JiraMgr()
-    task_db = NotionDB(CONFIG['NOTION_TASKS_URL'])
-    goal_db = NotionDB(CONFIG['NOTION_GOALS_URL'])
     cards = list(jira_mgr.tasks.values())
+    print("Starting jira update.....")
     for card in cards:
-        goal = goal_db.get_or_create(card.project_name)
+        print("[*] Card = ", card.key)
+        project = project_db.get_or_create(card.project_name)
+        print("\t", project)
         task = task_db.get_or_create(card.key)
-        if task.goal != goal.id:
-            task.goal = goal.id
+        print("\t", task)
+        if task.project != project.id:
+            task.project = project.id
         for k, v in task_field_mapping.items():
-            if getattr(task, k, None) != getattr(card, v, False):
-                setattr(task, k, getattr(card, v, None))
+            u = getattr(task, k, None)
+            w = getattr(card, v, None)
+            if u != w and w is not None:
+                print('\t\t', task.title, k, u, v, w)
+                setattr(task, k, w)
         if card.components and sorted(card.components) != sorted(
                 task.components):
             task.components = card.components
@@ -156,10 +162,15 @@ def update_notion_jira_tasks():
 
 def clean_and_update_page_area_of_row(description, task, client):
         block = client.get_block(task.id)
+        title = f'Description\n\n{description}'
+        found = False
         for child in block.children:
-            child.remove(permanently=True)
-        block.children.add_new(
-            CalloutBlock, title=f'Description\n\n{description}')
+            if child.title == title:
+                found = True
+                break
+        if not found:
+            block.children.add_new(
+                CalloutBlock, title=title)
 
 
 if __name__ == '__main__':
