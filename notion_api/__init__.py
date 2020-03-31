@@ -4,12 +4,11 @@ from notion.client import NotionClient
 from notion.collection import NotionDate
 
 from config import CONFIG
-from integration import DB
 
 TOKEN = CONFIG["NOTION_TOKEN"]
 
 
-class NotionDB(DB):
+class NotionDB:
     def __init__(self, view_url, lazy=False):
         client = NotionClient(token_v2=TOKEN)
         self.view = client.get_collection_view(view_url)
@@ -67,7 +66,7 @@ class NotionDB(DB):
         row = self.get_or_create(title)
         row.remove()
 
-
+'''
 class NotionCalendarDB(NotionDB):
     FIELDS = ['title', 'schedule', 'link']
 
@@ -89,7 +88,7 @@ class NotionCalendarDB(NotionDB):
                     timezone=pytz.FixedOffset(330)
             )
         }
-
+'''
 
 def update_rescue_time(data):
     db = NotionDB(CONFIG["NOTION_RESCUETIME_URL"])
