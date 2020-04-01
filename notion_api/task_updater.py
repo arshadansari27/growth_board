@@ -3,7 +3,6 @@ from integration.jira_api import update_notion_jira_tasks
 from notion_api import NotionDB
 
 
-
 def update_tasks():
     task_db = NotionDB(CONFIG[NOTION_TASKS_URL])
     project_db = NotionDB(CONFIG[NOTION_PROJECT_URL])

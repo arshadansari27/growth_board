@@ -1,7 +1,5 @@
 from typing import Dict, Any
 
-import pytz
-from dateutil import parser
 from notion.client import NotionClient
 from notion.collection import NotionDate
 

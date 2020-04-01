@@ -1,5 +1,5 @@
 from config import CONFIG
-from integration.notion_api import NotionDB
+from notion_api import NotionDB
 
 
 

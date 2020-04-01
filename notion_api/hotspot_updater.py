@@ -50,6 +50,7 @@ def get_data(today):
         'Deen': [],
         'Body': [],
         'Chores':[],
+        'Finance': [],
     }
     for c, t in data:
         by_client[c].append(t)
