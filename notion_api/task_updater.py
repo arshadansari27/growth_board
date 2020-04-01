@@ -9,8 +9,6 @@ def update_tasks():
     project_db = NotionDB(CONFIG[NOTION_PROJECT_URL])
     update_notion_jira_tasks(task_db, project_db)
     for task in task_db.get_all():
-        if not task.status and not task.done:
-            task.status = 'Backlog'
         if task.done:
             task.status = 'Done'
         if task.parent_name and not task.parent_task:

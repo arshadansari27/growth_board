@@ -1,3 +1,5 @@
+from typing import Dict, Any
+
 import pytz
 from dateutil import parser
 from notion.client import NotionClient
@@ -13,12 +15,23 @@ class NotionDB:
         client = NotionClient(token_v2=TOKEN)
         self.view = client.get_collection_view(view_url)
         assert self.view is not None and self.view.collection is not None
-        self.rows = {
-            r.title: r
-            for r in self.view.collection.get_rows()
-        }
+        if not lazy:
+            self._rows = {
+                r.title: r
+                for r in self.view.collection.get_rows()
+            }
+        else:
+            self._rows = {}
         self.client= client
-        print('\n'.join(self.rows.keys()))
+
+    @property
+    def rows(self) -> Dict[str, Any]:
+        if not self._rows:
+            self._rows = {
+                r.title: r
+                for r in self.view.collection.get_rows()
+            }
+        return self._rows
 
     def find_one_by(self, field, query):
         if field == 'title':

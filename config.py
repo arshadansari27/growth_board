@@ -1,4 +1,6 @@
 import os
+
+
 NOTION_TOKEN = "NOTION_TOKEN"
 NOTION_RESCUETIME_URL= "NOTION_RESCUETIME_URL"
 NOTION_CLICKUP_URL= "NOTION_CLICKUP_URL"
@@ -11,6 +13,7 @@ NOTION_CALENDAR_URL="NOTION_CALENDAR_URL"
 NOTION_BOOK_LIBRARY_URL="NOTION_BOOK_LIBRARY_URL"
 NOTION_VIDEO_LIBRARY_URL='NOTION_VIDEO_LIBRARY_URL'
 NOTION_TRACKING_DAILY_URL="NOTION_TRACKING_DAILY_URL"
+NOTION_HABIT_ROUTINE_URL="NOTION_HABIT_ROUTINE_URL"
 RESCUETIME_URL="RESCUETIME_URL"
 TOGGL_URL="TOGGL_URL"
 TOGGL_KEY="TOGGL_KEY"
@@ -24,28 +27,38 @@ GOOGLE_CREDS_OFFICE_PATH="GOOGLE_CREDS_OFFICE_PATH"
 GOOGLE_CREDS_PERSONAL_PATH="GOOGLE_CREDS_PERSONAL_PATH"
 AIRTABLE_API_KEY="AIRTABLE_API_KEY"
 
+
 CONFIG = {}
-CONFIG[NOTION_TOKEN] = os.environ[NOTION_TOKEN].replace('"', '')
-CONFIG[NOTION_RESCUETIME_URL]= os.environ[NOTION_RESCUETIME_URL].replace('"', '')
-CONFIG[NOTION_CLICKUP_URL]= os.environ[NOTION_CLICKUP_URL].replace('"', '')
-CONFIG[NOTION_TOGGL_URL]=os.environ[NOTION_TOGGL_URL].replace('"', '')
-CONFIG[NOTION_JIRA_URL]=os.environ[NOTION_JIRA_URL].replace('"', '')
-CONFIG[NOTION_GOALS_URL]=os.environ[NOTION_GOALS_URL].replace('"', '')
-CONFIG[NOTION_TASKS_URL]=os.environ[NOTION_TASKS_URL].replace('"', '')
-CONFIG[NOTION_CALENDAR_URL]=os.environ[NOTION_CALENDAR_URL].replace('"', '')
-CONFIG[NOTION_BOOK_LIBRARY_URL]=os.environ[NOTION_BOOK_LIBRARY_URL].replace('"', '')
-CONFIG[NOTION_VIDEO_LIBRARY_URL]=os.environ[NOTION_VIDEO_LIBRARY_URL].replace('"', '')
-CONFIG[NOTION_TRACKING_DAILY_URL]=os.environ[NOTION_TRACKING_DAILY_URL].replace('"', '')
-CONFIG[RESCUETIME_URL]=os.environ[RESCUETIME_URL].replace('"', '')
-CONFIG[TOGGL_URL]=os.environ[TOGGL_URL].replace('"', '')
-CONFIG[TOGGL_KEY]=os.environ[TOGGL_KEY].replace('"', '')
-CONFIG[JIRA_STOCKY_URL]=os.environ[JIRA_STOCKY_URL].replace('"', '')
-CONFIG[JIRA_STOCKY_USER]=os.environ[JIRA_STOCKY_USER].replace('"', '')
-CONFIG[JIRA_STOCKY_KEY]=os.environ[JIRA_STOCKY_KEY].replace('"', '')
-CONFIG[JIRA_PERSONAL_URL]=os.environ[JIRA_PERSONAL_URL].replace('"', '')
-CONFIG[JIRA_PERSONAL_USER]=os.environ[JIRA_PERSONAL_USER].replace('"', '')
-CONFIG[JIRA_PERSONAL_KEY]=os.environ[JIRA_PERSONAL_KEY].replace('"', '')
-CONFIG[AIRTABLE_API_KEY]=os.environ[AIRTABLE_API_KEY].replace('"', '')
-CONFIG[NOTION_PROJECT_URL] = os.environ[NOTION_PROJECT_URL].replace('"', '')
+
+
+def set_from_enviorn(val):
+    CONFIG[val] = os.environ[val].replace('"', '')
+
+set_from_enviorn(NOTION_TOKEN)
+set_from_enviorn(NOTION_RESCUETIME_URL)
+set_from_enviorn(NOTION_CLICKUP_URL)
+set_from_enviorn(NOTION_CLICKUP_URL)
+set_from_enviorn(NOTION_TOGGL_URL)
+set_from_enviorn(NOTION_JIRA_URL)
+set_from_enviorn(NOTION_GOALS_URL)
+set_from_enviorn(NOTION_TASKS_URL)
+set_from_enviorn(NOTION_CALENDAR_URL)
+set_from_enviorn(NOTION_BOOK_LIBRARY_URL)
+set_from_enviorn(NOTION_VIDEO_LIBRARY_URL)
+set_from_enviorn(NOTION_TRACKING_DAILY_URL)
+set_from_enviorn(RESCUETIME_URL)
+set_from_enviorn(TOGGL_URL)
+set_from_enviorn(TOGGL_KEY)
+set_from_enviorn(JIRA_STOCKY_URL)
+set_from_enviorn(JIRA_STOCKY_USER)
+set_from_enviorn(JIRA_STOCKY_KEY)
+set_from_enviorn(JIRA_PERSONAL_URL)
+set_from_enviorn(JIRA_PERSONAL_USER)
+set_from_enviorn(JIRA_PERSONAL_KEY)
+set_from_enviorn(AIRTABLE_API_KEY)
+set_from_enviorn(NOTION_PROJECT_URL)
+set_from_enviorn(NOTION_HABIT_ROUTINE_URL)
+
+
 
 
