@@ -1,5 +1,6 @@
 import os
 import pickle
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
@@ -56,21 +57,19 @@ class GoogleCalendar:
         self.service = build('calendar', 'v3', credentials=creds)
 
     def get_events(self):
-
-        today = datetime.now().replace(
+        start = datetime.now().replace(
                 hour=0,
                 minute=0,
                 second=0,
                 microsecond=0)
-        tomorrow = (today + timedelta(days=1))
-        time_min = today.isoformat() + 'Z'
-        time_max = tomorrow.isoformat() + 'Z'
+        start = (start - timedelta(days=1))
+        end = (start + timedelta(days=7))
+        time_min = start.isoformat() + 'Z'
+        time_max = end.isoformat() + 'Z'
         events_result = self.service.events().list(
                 calendarId='primary', timeMin=time_min,
                 timeMax=time_max, singleEvents=True).execute()
         events = events_result.get('items', [])
-        if not events:
-            print('No upcoming events found.')
         for event in events:
             if event['status'] != 'confirmed':
                 continue
@@ -89,15 +88,28 @@ class GoogleCalendar:
                 link
             )
 
-    def update_events(self, clean=True):
-        for start, end, summary, link in self.get_events():
-            data = GoogleCalendarData(summary, str(start), str(end),
-                                      self.context, 'confirmed', link)
-            print(data)
+    def get_current_events(self):
+        summary_dict = defaultdict(list)
+        for event in self.get_events():
+            start, end, summary, link = event
+            summary_dict[summary].append((start, end, link))
+        for summary, timing, merged in sorted(merge(summary_dict),
+                                      key=lambda u: u[1][0]):
+            start, end, link = timing
+            yield summary, start, end, link, self.context, merged
 
     @property
     def token(self):
         return f'token-{self.context}.pickle'
 
+
+def merge(summaries):
+    for k, dates in summaries.items():
+        if len(dates) > 1:
+            dates = [d for d in dates if d[0].date() == datetime.now().date()]
+            if dates:
+                yield k, dates[0], True
+        else:
+            yield k, dates[0], False
 
 

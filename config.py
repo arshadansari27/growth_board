@@ -1,10 +1,8 @@
 import os
-import shutil
+from urllib.parse import urlsplit
 
 import requests
-from urllib.parse import urlsplit
 from notion.client import NotionClient
-
 
 
 def set_from_enviorn(config, val):
@@ -85,3 +83,5 @@ JIRA_PERSONAL_URL="Jira Personal Api"
 JIRA_PERSONAL_USER="Jira Personal User"
 JIRA_PERSONAL_KEY="Jira Personal Key"
 AIRTABLE_API_KEY="Airtable Key"
+NOTION_QA_HIRING_URL = "QA Hiring Board"
+NOTION_BE_HIRING_URL = "BE Hiring Board"

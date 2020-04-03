@@ -11,19 +11,20 @@ sched = BlockingScheduler()
 
 @sched.scheduled_job('interval', minutes=25)
 def hotspot_updater():
+    print('Runs every 25 mins for daily updates')
     update_daily_hotspots()
     update_all_time_aggregates()
 
 
-@sched.scheduled_job('interval', minutes=2)
+@sched.scheduled_job('interval', minutes=4)
 def log_updater():
-    print('This job is runs every minute to let you know that things are '
-          'actually running.')
+    print('Runs every 4 mins for calendar update')
     calendar_events()
 
 
-@sched.scheduled_job('interval', hours=4)
+@sched.scheduled_job('interval', minutes=31)
 def task_updater():
+    print('Runs every 31 mins for task updates')
     update_tasks()
 
 
