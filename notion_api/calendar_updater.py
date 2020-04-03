@@ -22,7 +22,7 @@ def create_calendar_from_tasks():
 
     calendar = Calendar()
     for task in task_db.get_all():
-        if not task.scheduled or task.done:
+        if not task.scheduled or task.done or task.type == 'Event':
             continue
         event = Event()
         event['uid'] = str(task.id)
