@@ -8,14 +8,10 @@ from dateutil import parser
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-from config import CONFIG
-from integration import DB
 
 PERSONAL = 'Personal'
 OFFICE = 'Office'
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
-CREDS_PATH_OFFICE =  None
-CREDS_PATH_PERSONAL = None
 
 
 
@@ -42,13 +38,11 @@ class GoogleCalendarData:
         }
 
 class GoogleCalendar:
-    def __init__(self, context, creds_path, db: DB):
-        self.creds_path = creds_path
+    def __init__(self, context, file_names):
+        self.creds_path, token_file = file_names
         self.context = context
-        self.db = db
-        token_file = self.token
         creds = None
-        if os.path.exists(self.token):
+        if os.path.exists(token_file):
             with open(token_file, 'rb') as token:
                 creds = pickle.load(token)
         if not creds or not creds.valid:
@@ -96,36 +90,14 @@ class GoogleCalendar:
             )
 
     def update_events(self, clean=True):
-        if clean:
-            self.db.remove_all()
         for start, end, summary, link in self.get_events():
             data = GoogleCalendarData(summary, str(start), str(end),
                                       self.context, 'confirmed', link)
-            self.db.create(data)
+            print(data)
 
     @property
     def token(self):
         return f'token-{self.context}.pickle'
 
-    @staticmethod
-    def get_calendar(context):
-        from notion_api import NotionCalendarDB
-        if context == OFFICE:
-            return GoogleCalendar(OFFICE, CREDS_PATH_OFFICE, NotionCalendarDB(
-                    CONFIG["NOTION_CALENDAR_URL"]))
-        elif context == PERSONAL:
-            return GoogleCalendar(PERSONAL, CREDS_PATH_PERSONAL, NotionCalendarDB(
-                    CONFIG["NOTION_CALENDAR_URL"]))
-        raise NotImplementedError
 
-
-def update_calendar():
-    calendar = GoogleCalendar.get_calendar(PERSONAL)
-    calendar.update_events()
-    calendar = GoogleCalendar.get_calendar(OFFICE)
-    calendar.update_events(clean=False)
-
-
-if __name__ == '__main__':
-    update_calendar()
 
