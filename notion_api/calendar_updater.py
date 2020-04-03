@@ -1,3 +1,4 @@
+import pytz
 from notion.collection import NotionDate
 from icalendar import Calendar, Event
 from config import CONFIG, GOOGLE_CREDS_PERSONAL, GOOGLE_CREDS_OFFICE, \
@@ -26,9 +27,11 @@ def create_calendar_from_tasks():
             continue
         event = Event()
         event['uid'] = str(task.id)
-        event.add('dtstart', task.scheduled.start)
+        event.add('dtstart', task.scheduled.start.replace(
+                tzinfo=pytz.FixedOffset(330)))
         if task.scheduled.end:
-            event.add('dtend', task.scheduled.end)
+            event.add('dtend', task.scheduled.end.replace(
+                tzinfo=pytz.FixedOffset(330)))
         event['summary'] = create_summary(task)
         event['description'] = create_description(task)
         calendar.add_component(event)
