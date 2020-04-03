@@ -1,11 +1,38 @@
 from notion.collection import NotionDate
-
+from icalendar import Calendar, Event
 from config import CONFIG, GOOGLE_CREDS_PERSONAL, GOOGLE_CREDS_OFFICE, \
     NOTION_TASKS_URL
 from integration.calendar_google_api import GoogleCalendar
 from notion_api import NotionDB
 
 task_db = NotionDB(CONFIG[NOTION_TASKS_URL])
+
+
+def create_calendar_from_tasks():
+    def create_summary(task):
+        title = task.title
+        context = f' @ {task.context}' if task.context else ''
+        return f"{title}{context}"
+
+    def create_description(task):
+        summary = f' ({task.summary})' if task.summary else task.title
+        if task.link:
+            summary = f'<a href="{task.link}">{summary}</a>'
+        return summary
+
+    calendar = Calendar()
+    for task in task_db.get_all():
+        if not task.scheduled or task.done:
+            continue
+        event = Event()
+        event['uid'] = str(task.id)
+        event.add('dtstart', task.scheduled.start)
+        if task.scheduled.end:
+            event.add('dtend', task.scheduled.end)
+        event['summary'] = create_summary(task)
+        event['description'] = create_description(task)
+        calendar.add_component(event)
+    return calendar.to_ical()
 
 
 def update_notion():

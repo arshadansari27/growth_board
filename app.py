@@ -1,5 +1,14 @@
 from flask import Flask, request, jsonify
+
+from notion_api.calendar_updater import create_calendar_from_tasks
+
 app = Flask(__name__)
+
+
+@app.route('/calendar/task', methods=['GET'])
+def task_calendar():
+    return create_calendar_from_tasks()
+
 
 @app.route('/getmsg/', methods=['GET'])
 def respond():
