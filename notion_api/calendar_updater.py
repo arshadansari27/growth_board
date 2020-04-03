@@ -1,3 +1,5 @@
+from datetime import datetime, date
+
 import pytz
 from notion.collection import NotionDate
 from icalendar import Calendar, Event
@@ -21,17 +23,24 @@ def create_calendar_from_tasks():
             summary = f'<a href="{task.link}">{summary}</a>'
         return summary
 
+    def to_date_time(_date):
+        if isinstance(_date, datetime):
+            dt = _date
+        elif isinstance(_date, date):
+            dt = datetime(_date.year, _date.month, _date.day)
+        else:
+            raise Exception(f"What the hell! {_date}, {type(_date)}")
+        return dt.replace(tzinfo=pytz.FixedOffset(330))
+
     calendar = Calendar()
     for task in task_db.get_all():
-        if not task.scheduled or task.done or task.type == 'Event':
+        if not task.scheduled or task.done or task.task_type == 'Event':
             continue
         event = Event()
         event['uid'] = str(task.id)
-        event.add('dtstart', task.scheduled.start.replace(
-                tzinfo=pytz.FixedOffset(330)))
+        event.add('dtstart', to_date_time(task.scheduled.start))
         if task.scheduled.end:
-            event.add('dtend', task.scheduled.end.replace(
-                tzinfo=pytz.FixedOffset(330)))
+            event.add('dtend', to_date_time(task.scheduled.end))
         event['summary'] = create_summary(task)
         event['description'] = create_description(task)
         calendar.add_component(event)
