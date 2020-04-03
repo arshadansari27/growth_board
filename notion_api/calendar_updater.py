@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 import pytz
 from notion.collection import NotionDate
@@ -23,14 +23,26 @@ def create_calendar_from_tasks():
             summary = f'<a href="{task.link}">{summary}</a>'
         return summary
 
-    def to_date_time(_date):
-        if isinstance(_date, datetime):
-            dt = _date
-        elif isinstance(_date, date):
-            dt = datetime(_date.year, _date.month, _date.day)
-        else:
-            raise Exception(f"What the hell! {_date}, {type(_date)}")
+    def ensure_datetime(dt):
+        if isinstance(dt, date):
+            dt = datetime(dt.year, dt.month, dt.day)
         return dt.replace(tzinfo=pytz.FixedOffset(330))
+
+    def ensure_date(dt):
+        if isinstance(dt, datetime):
+            return dt.date()
+        return dt
+
+    def to_date_time(start_date, end_date):
+        if not end_date:
+            end_date = start_date + timedelta(seconds=3600)
+        if ensure_date(start_date) != ensure_date(end_date):
+            return ensure_date(start_date), ensure_date(end_date)
+        if end_date < start_date:
+            raise Exception("What the fuck! End date is smaller than start")
+
+        return ensure_datetime(start_date), ensure_datetime(end_date)
+
 
     calendar = Calendar()
     for task in task_db.get_all():
@@ -38,9 +50,9 @@ def create_calendar_from_tasks():
             continue
         event = Event()
         event['uid'] = str(task.id)
-        event.add('dtstart', to_date_time(task.scheduled.start))
-        if task.scheduled.end:
-            event.add('dtend', to_date_time(task.scheduled.end))
+        start, end = to_date_time(task.scheduled.start, task.scheduled.end)
+        event.add('dtstart', start)
+        event.add('dtend', end)
         event['summary'] = create_summary(task)
         event['description'] = create_description(task)
         calendar.add_component(event)
