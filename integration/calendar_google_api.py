@@ -1,14 +1,16 @@
 import os
 import pickle
-from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta, date
+from typing import Union, List
 
 import pytz
 from dateutil import parser
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+
+from config import CONFIG, GOOGLE_CREDS_PERSONAL
 
 PERSONAL = 'Personal'
 OFFICE = 'Office'
@@ -22,8 +24,8 @@ OFFICE_NOTION = 'stockopedia.com_g9gordf54b2vm84uje4ptmqvhk@group.calendar.googl
 class GoogleCalendarData:
     id: str
     name: str
-    scheduled_start: datetime = None
-    scheduled_end: datetime = None
+    scheduled_start: Union[datetime, date] = None
+    scheduled_end: Union[datetime, date] = None
     context:str = None
     status: str = None
     link: str = None
@@ -32,6 +34,7 @@ class GoogleCalendarData:
     created: datetime = None
     updated : datetime = None
     recurring: bool = False
+    timezone: str = None
 
     def __repr__(self):
         return f"[{self.context}]: {self.name} ({self.id})"
@@ -50,29 +53,75 @@ class GoogleCalendarData:
         }
 
     def to_google_event(self):
-        return {
+        # TODO: Order matters and it shouldn't
+        if isinstance(self.scheduled_start, datetime):
+            start = {
+                'dateTime': self.scheduled_start.strftime(
+                    '%Y-%m-%dT%H:%M:%S%z'),
+                'timeZone': self.timezone,
+            }
+        elif isinstance(self.scheduled_start, date):
+            start = {
+                'date': self.scheduled_start.strftime('%Y-%m-%d'),
+            }
+        else:
+            raise Exception("How can start date be none or any other thing?")
+        if self.scheduled_end:
+            if isinstance(self.scheduled_end, datetime):
+                end = {
+                    'dateTime': self.scheduled_end.strftime('%Y-%m-%dT%H:%M:%S%z'),
+                    'timeZone': self.timezone,
+                }
+            elif isinstance(self.scheduled_end, date):
+                end = {
+                    'date': self.scheduled_end.strftime('%Y-%m-%d')
+                }
+            else:
+                raise Exception("Not taking not date/datetime value for end")
+        else:
+            end = (start + timedelta(minutes=15)) if isinstance(start,
+                                                                datetime) else start
+        data = {
             'summary': self.name,
             'location': self.location,
             'description': self.description,
-            'start': {
-                'dateTime': self.scheduled_start.strftime("%Y-%m-%dT%H:%M:%S%z"),
-                'timeZone': DEFAULT_TIMEZONE,
-            },
-            'end': {
-                'dateTime': self.scheduled_end.strftime("%Y-%m-%dT%H:%M:%S%z"),
-                'timeZone': DEFAULT_TIMEZONE,
-            },
+            'start': start,
+            'end': end,
             'reminders': {
                 'useDefault': True,
-                'overrides': [],
             },
         }
+        if self.id:
+            data['id'] = self.id
+        return data
+
+    @staticmethod
+    def from_notion_task(task):
+        return GoogleCalendarData(
+            id=task.calendar_id,
+            name=task.title,
+            scheduled_start=task.scheduled.start,
+            scheduled_end=task.scheduled.end,
+            context=task.context,
+            status='confirmed',
+            link=task.calendar_link,
+            description=task.summary,
+            timezone=task.scheduled.timezone if task.scheduled.timezone else DEFAULT_TIMEZONE
+        )
+
+    def update_to_notion_dict(self):
+        return {
+            'start': self.scheduled_start,
+            'end': self.scheduled_end,
+            'timezone': self.timezone,
+        }
+
 
 class GoogleCalendar:
     def __init__(self, context, file_names):
         self.creds_path, token_file = file_names
         self.context = context
-        print(self.creds_path)
+        print('[*] Ref file name for permission:', self.creds_path.replace('.json', '').split('-')[1])
         creds = None
         if os.path.exists(token_file):
             with open(token_file, 'rb') as token:
@@ -87,14 +136,14 @@ class GoogleCalendar:
                 pickle.dump(creds, token)
         self.service = build('calendar', 'v3', credentials=creds)
 
-    def get_events(self, calendar_id='primary'):
+    def get_events(self, calendar_id) -> List[GoogleCalendarData]:
         start = datetime.now().replace(
                 hour=0,
                 minute=0,
                 second=0,
                 microsecond=0)
-        start = (start - timedelta(days=1))
-        end = (start + timedelta(days=7))
+        start = (start - timedelta(days=30))
+        end = (start + timedelta(days=365))
         time_min = start.isoformat() + 'Z'
         time_max = end.isoformat() + 'Z'
         t = self.service.events()
@@ -107,12 +156,24 @@ class GoogleCalendar:
                 continue
             estart = event.get('start', {})
             eend = event.get('end', {})
-            start = parser.parse(estart.get('dateTime', estart.get(
-                    'date'))).replace(tzinfo=pytz.FixedOffset(330))
+            if not estart:
+                raise Exception("There must be a start with or without an end")
+            as_date_time = True if estart.get('dateTime') else False
+            start = parser.parse(
+                    estart.get('dateTime', estart.get('date')))
             end = parser.parse(
-                eend.get('dateTime', estart.get('date'))).replace(tzinfo=pytz.FixedOffset(330))
+                    eend.get('dateTime', estart.get('date')))
+            timezone = None
+            if not as_date_time:
+                start = start.date()
+                end = end.date()
+            else:
+                timezone = estart.get('timeZone', DEFAULT_TIMEZONE)
+                start = start.replace(tzinfo=pytz.timezone(timezone))
+                end = end.replace(tzinfo=pytz.timezone(timezone))
+
             recurring = True if event.get('recurringEventId', None) else False
-            if recurring and not start.date() == date.today():
+            if recurring and not (start.date() if as_date_time else start) == date.today():
                 continue
             summary = event['summary']
             link = event['htmlLink']
@@ -129,11 +190,13 @@ class GoogleCalendar:
                 description=event.get('description'),
                 location= event.get('location'),
                 recurring=recurring,
+                timezone=timezone
             )
 
     def create_event(self, event: GoogleCalendarData, calendar_id):
         assert not event.id
         cal_event = event.to_google_event()
+        print('Inserting', cal_event)
         event_dict = self.service.events().insert(calendarId=calendar_id,
                                            body=cal_event).execute()
         event.id = event_dict['id']
@@ -141,6 +204,7 @@ class GoogleCalendar:
 
     def update_event(self, event: GoogleCalendarData, calendar_id):
         cal_event = event.to_google_event()
+        print('Updating', cal_event)
         self.service.events().update(calendarId=calendar_id,
                                      eventId=event.id, body=cal_event).execute()
         return event
@@ -150,28 +214,32 @@ class GoogleCalendar:
         for l_e in lst['items']:
             print(l_e['id'], l_e['summary'], l_e['timeZone'])
 
-    def get_current_events(self, calendar_id=None):
-        summary_dict = defaultdict(list)
-        for event in self.get_events(calendar_id=calendar_id):
-            start, end, summary, link = event
-            summary_dict[summary].append((start, end, link))
-        for summary, timing, merged in sorted(merge(summary_dict),
-                                      key=lambda u: u[1][0]):
-            start, end, link = timing
-            yield summary, start, end, link, self.context, merged
-
     @property
     def token(self):
         return f'token-{self.context}.pickle'
 
 
-def merge(summaries):
-    for k, dates in summaries.items():
-        if len(dates) > 1:
-            dates = [d for d in dates if d[0].date() == datetime.now().date()]
-            if dates:
-                yield k, dates[0], True
-        else:
-            yield k, dates[0], False
-
-
+if __name__ == '__main__':
+    p_calendar = GoogleCalendar(PERSONAL, CONFIG[GOOGLE_CREDS_PERSONAL])
+    for e in list(p_calendar.get_events(PERSONAL_NOTION)):
+        print(e.name, e.created, e.updated, e.scheduled_start,
+              e.scheduled_end, e.description, e.status, e.link, e.location)
+        print('[*]', e.update_to_notion_dict())
+        evt = e
+    '''
+    event = GoogleCalendarData(None, 'Testing', datetime.now(),
+                               datetime.now() + timedelta(minutes=15),
+                               PERSONAL,
+                               'confirmed',
+                               None,
+                               'Testing event')
+    created_event = p_calendar.create_event(event, PERSONAL_NOTION)
+    print('[*](1)', created_event.to_dict())
+    assert created_event.id is not None
+    import time
+    time.sleep(10)
+    created_event.name = 'Testing updated'
+    updated_event = p_calendar.update_event(created_event, PERSONAL_NOTION)
+    print('[*](2)', updated_event.to_dict())
+    assert updated_event.id == created_event.id
+    '''
