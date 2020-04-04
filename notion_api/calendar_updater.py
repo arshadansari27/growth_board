@@ -34,15 +34,22 @@ def create_calendar_from_tasks():
         return dt
 
     def to_date_time(start_date, end_date):
-        if ensure_date(start_date) != ensure_date(end_date):
+        if end_date and ensure_date(start_date) != ensure_date(end_date):
             return ensure_date(start_date), ensure_date(end_date)
-        return ensure_datetime(start_date), ensure_datetime(end_date)
+        if isinstance(start_date, datetime):
+            if not end_date:
+                end_date = start_date + timedelta(seconds=1800)
+            else:
+                end_date = ensure_datetime(end_date)
+            return start_date, end_date
+        return ensure_date(start_date), ensure_date(end_date)
 
     calendar = Calendar()
     for task in task_db.get_all():
         if not task.scheduled or task.done or task.task_type == 'Event':
             continue
         event = Event()
+        print("[*]", task.title)
         event['uid'] = str(task.id)
         start, end = to_date_time(task.scheduled.start, task.scheduled.end)
         event.add('dtstart', start)
