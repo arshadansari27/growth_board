@@ -9,7 +9,6 @@ from integration.calendar_google_api import GoogleCalendar
 from notion_api import NotionDB
 
 
-
 def create_calendar_from_tasks():
     task_db = NotionDB(CONFIG[NOTION_TASKS_URL])
 
@@ -47,7 +46,8 @@ def create_calendar_from_tasks():
         event['uid'] = str(task.id)
         start, end = to_date_time(task.scheduled.start, task.scheduled.end)
         event.add('dtstart', start)
-        event.add('dtend', end)
+        if end:
+            event.add('dtend', end)
         event['summary'] = create_summary(task)
         event['description'] = create_description(task)
         calendar.add_component(event)
