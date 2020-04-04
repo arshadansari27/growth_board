@@ -1,16 +1,17 @@
 from typing import Dict, Any
 
+import requests
 from notion.client import NotionClient
 from notion.collection import NotionDate
 
 from config import CONFIG
 
-TOKEN = CONFIG["NOTION_TOKEN"]
-
 
 class NotionDB:
-    def __init__(self, view_url, lazy=False):
-        client = NotionClient(token_v2=TOKEN)
+    def __init__(self, view_url, lazy=False, token=False):
+        if not token:
+            token = CONFIG["NOTION_TOKEN"]
+        client = NotionClient(token_v2=token)
         self.view = client.get_collection_view(view_url)
         assert self.view is not None and self.view.collection is not None
         if not lazy:
@@ -72,6 +73,24 @@ class NotionDB:
         row = self.get_or_create(title)
         for k, v in data.items():
             setattr(row, k, v)
+
+    def upload_file(self, title, field, content_type, file_name, file_object):
+        response = self.client.post('/api/v3/getUploadFileUrl', data={
+            "bucket":"secure",
+            "name": file_name,
+            "contentType": content_type
+        })
+        resp_data = response.json()
+        #get_url = resp_data['signedGetUrl']
+        url = resp_data['url']
+        put_url = resp_data['signedPutUrl']
+        header = {"Origin": "localhost", "Content-type": content_type}
+        requests.put(put_url, data=file_object, headers=header)
+        row = self.get_or_create(title)
+        field_values = getattr(row, field, [])
+        field_values.append(url)
+        print(row.title, field_values)
+        setattr(row, field, field_values)
 
     def remove(self, title):
         row = self.get_or_create(title)
