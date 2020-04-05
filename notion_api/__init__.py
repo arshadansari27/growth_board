@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, List, Tuple
 
 import requests
 from notion.client import NotionClient
@@ -21,7 +21,7 @@ class NotionDB:
             }
         else:
             self._rows = {}
-        self.client= client
+        self.client = client
 
     @property
     def rows(self) -> Dict[str, Any]:
@@ -37,8 +37,8 @@ class NotionDB:
             return self.rows.get(query)
         for v in self.rows.values():
             if (
-                isinstance(getattr(v, field), NotionDate)
-                and getattr(v, field).start == query
+                    isinstance(getattr(v, field), NotionDate)
+                    and getattr(v, field).start == query
             ) or getattr(v, field) == query:
                 return v
         return None
@@ -49,6 +49,9 @@ class NotionDB:
 
     def get_all(self):
         return list(self.rows.values())
+
+    def get(self, title):
+        return self.rows.get(title, None)
 
     def get_or_create(self, title):
         if not title in self.rows:
@@ -76,12 +79,12 @@ class NotionDB:
 
     def upload_file(self, title, field, content_type, file_name, file_object):
         response = self.client.post('/api/v3/getUploadFileUrl', data={
-            "bucket":"secure",
+            "bucket": "secure",
             "name": file_name,
             "contentType": content_type
         })
         resp_data = response.json()
-        #get_url = resp_data['signedGetUrl']
+        # get_url = resp_data['signedGetUrl']
         url = resp_data['url']
         put_url = resp_data['signedPutUrl']
         header = {"Origin": "localhost", "Content-type": content_type}
@@ -96,29 +99,6 @@ class NotionDB:
         row = self.get_or_create(title)
         row.remove()
 
-'''
-class NotionCalendarDB(NotionDB):
-    FIELDS = ['title', 'schedule', 'link']
-
-    def create(self, cal_data: GoogleCalendarData):
-        super(NotionCalendarDB, self).create(self._convert(cal_data))
-
-    def update(self, cal_data: GoogleCalendarData):
-        super(NotionCalendarDB, self).update(self._convert(cal_data))
-
-    def _convert(self, cal_data: GoogleCalendarData):
-        print('[*]', cal_data)
-        return {
-            'title': cal_data.name,
-            'link': cal_data.link,
-            'context': cal_data.context,
-            'schedule': NotionDate(
-                    start=parser.parse(cal_data.scheduled_start),
-                    end=parser.parse(cal_data.scheduled_end),
-                    timezone=pytz.FixedOffset(330)
-            )
-        }
-'''
 
 def update_rescue_time(data):
     db = NotionDB(CONFIG["NOTION_RESCUETIME_URL"])
@@ -131,3 +111,24 @@ def update_rescue_time(data):
         row.Week4 = round(week.get(key, 0), 2)
 
 
+def create_filter(property, value, operator='contains'):
+    return {
+        'filter': {
+            'value': {
+                'type': 'exact',
+                'value': value
+            },
+            'operator': operator
+        },
+        'property': property
+    }
+
+
+def create_filter_list(filter_tuples: List[Tuple[str, Any, str]]):
+    return {
+        'filter': {
+            'filters': [create_filter(*filter_tuple) for filter_tuple in
+                        filter_tuples],
+            'operator': 'and'
+        }
+    }
