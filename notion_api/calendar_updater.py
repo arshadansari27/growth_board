@@ -48,7 +48,6 @@ def update_calendar_times():
                 created_event = create_calendar_event(task, calendar, calendar_id)
                 task.calendar_id = created_event.id
             else:
-                print(f"[{task.name}] Checking existing")
                 event = all_events.get(event_key)
                 stdout.flush()
                 update_calendar_or_notion(task, event, calendar, calendar_id)
@@ -64,8 +63,8 @@ def create_calendar_event(task, calendar, calendar_id):
 
 def update_calendar_or_notion(task, event, calendar, calendar_id):
     if cmp(event, task):
-        print(f"[\t] Skipping")
         return
+    print(f"[{task.name}] Update existing")
     if is_event_updated_later(task, event) is 1:
         print(f"[\t] Task")
         update_data = event.update_to_notion_dict()

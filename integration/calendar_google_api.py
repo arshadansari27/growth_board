@@ -10,7 +10,7 @@ from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
-from config import CONFIG, GOOGLE_CREDS_PERSONAL
+from config import CONFIG, GOOGLE_CREDS_PERSONAL, GOOGLE_CREDS_OFFICE
 
 PERSONAL = 'Personal'
 OFFICE = 'Office'
@@ -162,16 +162,15 @@ class GoogleCalendar:
             start = parser.parse(
                     estart.get('dateTime', estart.get('date')))
             end = parser.parse(
-                    eend.get('dateTime', estart.get('date')))
+                    eend.get('dateTime', eend.get('date')))
             timezone = None
             if not as_date_time:
                 start = start.date()
-                end = end.date()
+                end = end.date() if end else start.date()
             else:
                 timezone = estart.get('timeZone', DEFAULT_TIMEZONE)
                 start = start.replace(tzinfo=pytz.timezone(timezone))
-                end = end.replace(tzinfo=pytz.timezone(timezone))
-
+                end = end.replace(tzinfo=pytz.timezone(timezone)) if end else start
             recurring = True if event.get('recurringEventId', None) else False
             if recurring and not (start.date() if as_date_time else start) == date.today():
                 continue
@@ -219,3 +218,10 @@ class GoogleCalendar:
         return f'token-{self.context}.pickle'
 
 
+if __name__ == '__main__':
+    o_calendar = GoogleCalendar(OFFICE, CONFIG[GOOGLE_CREDS_OFFICE])
+    for e in list(o_calendar.get_events(OFFICE_NOTION)):
+        print(e.name, e.scheduled_start,
+              e.scheduled_end, e.description, e.status, e.link, e.location)
+        print('[*]', e.update_to_notion_dict())
+        evt = e
