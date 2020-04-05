@@ -29,7 +29,6 @@ def get_from_url(value: str):
 
 def save_file(file_url, as_binary=False):
     file_name = urlsplit(file_url).path.split('/')[-1]
-    return file_name
     if not os.path.exists(file_name):
         print("[*] Saving file to local", file_name)
         with open(file_name, 'wb' if as_binary else 'w') as outfile:
