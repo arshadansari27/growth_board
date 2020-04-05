@@ -36,7 +36,6 @@ def update_calendar_times():
 
     all_events.update({key_gen(e.context, e.id): e for e in
                        o_calendar.get_events(OFFICE_NOTION)})
-    print(all_events)
     for task in all_tasks.values():
         calendar, calendar_id = get_calendar_by_context(task.context)
         event_key = key_gen(task.context, task.calendar_id)

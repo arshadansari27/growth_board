@@ -219,27 +219,3 @@ class GoogleCalendar:
         return f'token-{self.context}.pickle'
 
 
-if __name__ == '__main__':
-    p_calendar = GoogleCalendar(PERSONAL, CONFIG[GOOGLE_CREDS_PERSONAL])
-    for e in list(p_calendar.get_events(PERSONAL_NOTION)):
-        print(e.name, e.created, e.updated, e.scheduled_start,
-              e.scheduled_end, e.description, e.status, e.link, e.location)
-        print('[*]', e.update_to_notion_dict())
-        evt = e
-    '''
-    event = GoogleCalendarData(None, 'Testing', datetime.now(),
-                               datetime.now() + timedelta(minutes=15),
-                               PERSONAL,
-                               'confirmed',
-                               None,
-                               'Testing event')
-    created_event = p_calendar.create_event(event, PERSONAL_NOTION)
-    print('[*](1)', created_event.to_dict())
-    assert created_event.id is not None
-    import time
-    time.sleep(10)
-    created_event.name = 'Testing updated'
-    updated_event = p_calendar.update_event(created_event, PERSONAL_NOTION)
-    print('[*](2)', updated_event.to_dict())
-    assert updated_event.id == created_event.id
-    '''
