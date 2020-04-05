@@ -119,7 +119,7 @@ class JiraMgr:
 task_field_mapping = {
         'context': 'context',
         'summary': 'name',
-        'type': 'type',
+        'task_type': 'type',
         'minor': 'sub_task',
         'status': 'status',
         'done': 'done',
@@ -163,9 +163,7 @@ def clean_and_update_page_area_of_row(description, task, client):
         title = f'Description\n\n{description}'
         found = False
         for child in block.children:
-            if child.title == title:
-                found = True
-                break
+            child.remove(permanently=True)
         if not found:
             block.children.add_new(
                 CalloutBlock, title=title)

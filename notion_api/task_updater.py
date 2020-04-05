@@ -30,7 +30,7 @@ def update_from_hiring_board():
         task_row = task_db.get_or_create(title)
         task_row.link = _task.get_browseable_url()
         task_row.project = hiring_project.id
-        task_row.type = 'Task'
+        task_row.task_type = 'Story'
         task_row.link = _task.get_browseable_url()
         if getattr(_task, 'Schedule', None):
             task_row.scheduled = _task.Schedule
@@ -49,7 +49,6 @@ def update_from_hiring_board():
         if any(be_board.client.current_user == u
                 for u in task.Assign):
             setup(task, 'BE')
-
 
 
 if __name__ == '__main__':
