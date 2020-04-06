@@ -1,7 +1,9 @@
 from notion.block import PageBlock
+from notion.collection import NotionDate
 
 from config import CONFIG, NOTION_TASKS_URL, NOTION_PROJECT_URL, \
     NOTION_QA_HIRING_URL, NOTION_BE_HIRING_URL
+from integration.calendar_google_api import DEFAULT_TIMEZONE
 from integration.jira_api import update_notion_jira_tasks
 from notion_api import NotionDB
 
@@ -33,7 +35,8 @@ def update_from_hiring_board():
         task_row.task_type = 'Story'
         task_row.link = _task.get_browseable_url()
         if getattr(_task, 'Schedule', None):
-            task_row.scheduled = _task.Schedule
+            task_row.scheduled = NotionDate(
+                    _task.Schedule.start, _task.Schedule.end, DEFAULT_TIMEZONE)
         if task.Status in {'Dropped', 'Offered'}:
             task_row.done = True
         else:
