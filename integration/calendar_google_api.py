@@ -310,6 +310,7 @@ def check_recurrency_for_today(event_resp, event: GoogleCalendarData):
         if 'BYDAY' in r:
             days = [WEEKDAY[u] for u in r.split('=')[1].split(',')]
     today = datetime.now(tz=pytz.timezone('Asia/Kolkata')).today()
+    print("[Recur] Updating the date to today", today, 'from', datetime.now(tz=pytz.timezone('Asia/Kolkata')))
     if frequency == 'DAILY':
         update_to_today()
         return event
