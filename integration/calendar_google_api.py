@@ -37,7 +37,8 @@ class GoogleCalendarData:
     timezone: str = None
 
     def __repr__(self):
-        return f"[{self.context}]: {self.name} ({self.id})"
+        return f"[{self.context}]: {self.name} ({self.scheduled_start} / " \
+               f"{self.scheduled_end})"
 
     def to_dict(self):
         return {
@@ -142,7 +143,9 @@ class GoogleCalendar:
                 hour=0,
                 minute=0,
                 second=0,
-                microsecond=0)
+                microsecond=0,
+                tzinfo=pytz.timezone('Asia/Kolkata')
+            )
             start = (start - timedelta(days=30))
         else:
             start =  from_date
@@ -316,3 +319,10 @@ WEEKDAY = {
     'SA': 5,
     'SU': 6
 }
+
+if __name__ == '__main__':
+    p_calendar = GoogleCalendar(PERSONAL, CONFIG[GOOGLE_CREDS_PERSONAL])
+    from_date = datetime.today() - timedelta(days=7)
+    to_date = datetime.today() + timedelta(days=7)
+    print('\n'.join(str(u) for u in p_calendar.get_events('primary', from_date,
+                                                 to_date)))
