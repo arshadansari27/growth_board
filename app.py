@@ -41,6 +41,7 @@ def task_calendar():
 def update_tasks():
     from notion_api.task_updater import update_tasks as task_updater
     task_updater()
+    return ''
 
 
 @app.route('/update/hiring', methods=['POST'])
@@ -48,6 +49,7 @@ def update_tasks():
 def update_hiring():
     from notion_api.task_updater import update_from_hiring_board
     update_from_hiring_board()
+    return ''
 
 
 @app.route('/update/tracker', methods=['POST'])
@@ -55,6 +57,7 @@ def update_hiring():
 def update_tracker():
     from notion_api.tracker_updater import update_tracker as tracker_updater
     tracker_updater()
+    return ''
 
 
 @app.route('/update/calendar', methods=['POST'])
@@ -62,6 +65,7 @@ def update_tracker():
 def update_calendar():
     from notion_api.calendar_updater import update_calendar_times
     update_calendar_times()
+    return ''
 
 
 # A welcome message to test our server
