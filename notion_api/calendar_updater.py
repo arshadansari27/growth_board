@@ -86,7 +86,7 @@ def update_all_events_from_primary():
         update_task_on_notion(task_db, event)
         not_any_more_on_calendar.add(event.name)
     for task_name in task_db.rows:
-        if task_name in not_any_more_on_calendar and :
+        if task_name in not_any_more_on_calendar:
             continue
         task = task_db.rows[task_name]
         if task.task_type != 'Event':
