@@ -44,16 +44,14 @@ def update_calendar_times():
         event_key = key_gen(task.context, task.calendar_id)
         if task.task_type == 'Event':
             continue
-        if (task.done and task.calendar_id):
-            if event_key in all_events:
+        if task.done:
+            if task.calendar_id and event_key in all_events:
                 all_events.pop(event_key)
                 _event = calendar.get_event(task.calendar_id, calendar_id)
                 if _event:
                     calendar.delete_event(task.calendar_id, calendar_id)
-            else:
                 task.calendar_id = None
             continue
-
         try:
             if not task.calendar_id:
                 print(f"[{task.name}] Creating new event")
