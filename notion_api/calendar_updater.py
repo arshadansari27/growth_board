@@ -1,7 +1,5 @@
-from collections import defaultdict
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from itertools import chain
-from sys import stdout
 
 import pytz
 from notion.collection import NotionDate
@@ -44,8 +42,7 @@ def update_calendar_times():
             continue
         calendar, calendar_id = get_calendar_by_context(task.context)
         event_key = key_gen(task.context, task.calendar_id)
-        if (task.task_type == 'Event' and task.calendar_id) or (task.done and
-                                                                task.calendar_id):
+        if (task.done and task.calendar_id):
             if event_key in all_events:
                 all_events.pop(event_key)
                 _event = calendar.get_event(task.calendar_id, calendar_id)
@@ -63,7 +60,6 @@ def update_calendar_times():
                 task.calendar_id = created_event.id
             else:
                 event = all_events.get(event_key)
-                stdout.flush()
                 update_calendar_or_notion(task, event, calendar, calendar_id)
         except:
             print(task.title, all_events.get(event_key))
