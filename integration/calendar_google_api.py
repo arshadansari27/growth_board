@@ -208,6 +208,46 @@ class GoogleCalendar:
         for data in seen_recurring_events.values():
             yield data
 
+    def get_event(self, event_id, calendar_id):
+        event = self.service.events().get(calendarId=calendar_id,
+                                        eventId=event_id).execute()
+        if not event:
+            return None
+        print('[*]', event)
+        recurring = event.get('recurringEventId', False)
+        estart = event.get('start', {})
+        eend = event.get('end', {})
+        if not estart:
+            raise Exception("There must be a start with or without an end")
+        as_date_time = True if estart.get('dateTime') else False
+        start = parser.parse(
+                estart.get('dateTime', estart.get('date')))
+        end = parser.parse(
+                eend.get('dateTime', eend.get('date')))
+        timezone = None
+        if not as_date_time:
+            start = start.date()
+            end = end.date() if end else start.date()
+        else:
+            timezone = estart.get('timeZone', DEFAULT_TIMEZONE)
+            start = start.replace(tzinfo=pytz.timezone(timezone))
+            end = end.replace(tzinfo=pytz.timezone(timezone)) if end else start
+        return GoogleCalendarData(
+                event['id'],
+                event['summary'],
+                scheduled_start=start,
+                scheduled_end=end,
+                link=event['htmlLink'],
+                context=self.context,
+                status=event['status'],
+                created=parser.parse(event['created']),
+                updated = parser.parse(event['updated']),
+                description=event.get('description'),
+                location= event.get('location'),
+                recurring=recurring,
+                timezone=timezone
+            )
+
     def create_event(self, event: GoogleCalendarData, calendar_id):
         assert not event.id
         cal_event = event.to_google_event()

@@ -43,14 +43,18 @@ def update_calendar_times():
             print("[*] Task does not have context", task.title, task.context)
             continue
         calendar, calendar_id = get_calendar_by_context(task.context)
-        if task.task_type == 'Event':
-            if task.calendar_id:
-                calendar.delete_event(task.calendar_id, calendar_id)
-            continue
         event_key = key_gen(task.context, task.calendar_id)
-        if task.done and task.calendar_id:
-            all_events.pop(event_key)
-            calendar.delete_event(task.calendar_id, calendar_id)
+        if (task.task_type == 'Event' and task.calendar_id) or (task.done and
+                                                                task.calendar_id):
+            if event_key in all_events:
+                all_events.pop(event_key)
+                _event = calendar.get_event(task.calendar_id, calendar_id)
+                if _event:
+                    calendar.delete_event(task.calendar_id, calendar_id)
+            else:
+                task.calendar_id = None
+            continue
+        if task.task_type == 'Event':
             continue
         try:
             if not task.calendar_id:
