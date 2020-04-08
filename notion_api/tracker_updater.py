@@ -2,8 +2,39 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta
 
 from config import NOTION_TRACKABLE_THINGS_URL, NOTION_TRACKING_DAILY_URL, \
-    CONFIG, NOTION_TRACKING_WEEKLY_URL
+    CONFIG, NOTION_TRACKING_WEEKLY_URL, NOTION_TASKS_URL
 from notion_api import NotionDB
+
+
+def update_daily_tracker_from_tasks():
+    today = date.today()
+    daily_tracker_db = NotionDB(CONFIG[NOTION_TRACKING_DAILY_URL])
+    tasks_db = NotionDB(CONFIG[NOTION_TASKS_URL])
+    trackable_things_db = NotionDB(CONFIG[NOTION_TRACKABLE_THINGS_URL])
+    for trackable_things in trackable_things_db.get_all():
+        task_name = getattr(trackable_things, 'tasks_name')
+        if not trackable_things.boolean_add:
+            print(f"Skipping as {task_name} is not boolean")
+            continue
+        if not task_name:
+            print("Skipping as task name is not matched")
+            continue
+        task = tasks_db.get(task_name)
+        if not task:
+            print("Skipping the task", task_name)
+            continue
+        start_date = task.scheduled.start
+        if isinstance(start_date, datetime):
+            start_date = start_date.date()
+        if not task.done:
+            print("Skipping the task not done", task.title)
+            continue
+        daily_tracked = daily_tracker_db.get(start_date.strftime("%b %d"))
+        if not daily_tracked:
+            print("Skipping the task as not on daily_tracked", task.title)
+            continue
+        print("Setting", trackable_things.title, task.done)
+        setattr(daily_tracked, trackable_things.title, task.done)
 
 
 def update_tracker():
@@ -84,4 +115,4 @@ def _ensure_date(value):
     return value
 
 if __name__ == '__main__':
-    update_tracker()
+    update_daily_tracker_from_tasks()
