@@ -49,13 +49,6 @@ def update_hiring():
     from notion_api.task_updater import update_from_hiring_board
     update_from_hiring_board()
 
-    
-@app.route('/update/jira', methods=['POST'])
-@requires_auth
-def update_jira():
-    from notion_api.task_updater import update_notion_jira_tasks
-    update_notion_jira_tasks()
-
 
 @app.route('/update/tracker', methods=['POST'])
 @requires_auth
