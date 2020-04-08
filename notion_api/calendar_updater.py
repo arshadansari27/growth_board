@@ -1,4 +1,6 @@
-from datetime import date, datetime
+from collections import defaultdict
+from datetime import date, datetime, timedelta
+from itertools import chain
 from sys import stdout
 
 import pytz
@@ -20,11 +22,11 @@ def update_calendar_times():
     all_events = {}
     all_tasks = {}
 
-    def get_calendar_by_context(context):
+    def get_calendar_by_context(context, is_primary=False):
         if context == PERSONAL:
-            return (p_calendar, PERSONAL_NOTION)
+            return (p_calendar, 'primary' if is_primary else PERSONAL_NOTION)
         elif context == OFFICE:
-            return (o_calendar, OFFICE_NOTION)
+            return (o_calendar, 'primary' if is_primary else OFFICE_NOTION)
         raise Exception(f"Invalid context provided: {context}")
 
     key_gen = lambda c, u: f"{c}-{u}"
@@ -37,7 +39,14 @@ def update_calendar_times():
     all_events.update({key_gen(e.context, e.id): e for e in
                        o_calendar.get_events(OFFICE_NOTION)})
     for task in all_tasks.values():
+        if task.context not in {PERSONAL, OFFICE}:
+            print("[*] Task does not have context", task.title, task.context)
+            continue
         calendar, calendar_id = get_calendar_by_context(task.context)
+        if task.task_type == 'Event':
+            if task.calendar_id:
+                calendar.delete_event(task.calendar_id, calendar_id)
+            continue
         event_key = key_gen(task.context, task.calendar_id)
         if task.done and task.calendar_id:
             all_events.pop(event_key)
@@ -54,11 +63,52 @@ def update_calendar_times():
         except:
             print(task.title, all_events.get(event_key))
             raise
+    update_all_events_from_primary()
+
+def update_all_events_from_primary():
+    task_db = NotionDB(CONFIG[NOTION_TASKS_URL])
+    p_calendar = GoogleCalendar(PERSONAL, CONFIG[GOOGLE_CREDS_PERSONAL])
+    o_calendar = GoogleCalendar(OFFICE, CONFIG[GOOGLE_CREDS_OFFICE])
+    from_date = datetime.today() - timedelta(days=7)
+    to_date = datetime.today() + timedelta(days=7)
+    events = chain(
+            o_calendar.get_events('primary', from_date, to_date),
+            p_calendar.get_events('primary', from_date, to_date)
+    )
+    for event in sorted(events, key=lambda u: conv(u.scheduled_start)):
+        update_task_on_notion(task_db, event)
+
+
+def conv(u):
+    return u.strftime('%Y-%m-%d')
 
 
 def create_calendar_event(task, calendar, calendar_id):
     event = GoogleCalendarData.from_notion_task(task)
     return calendar.create_event(event, calendar_id)
+
+
+def update_task_on_notion(task_db, event):
+    update_data = event.update_to_notion_dict()
+    task = task_db.get_or_create(event.name)
+    start = update_data['start']
+    end = update_data['end']
+    if task.done and start.strftime('%Y-%m-%d') == \
+            task.scheduled.start.strftime('%Y-%m-%d'):
+        return
+    if task.context != event.context:
+        task.context = event.context
+    if task.task_type != 'Event':
+        task.task_type = 'Event'
+    if task.scheduled != NotionDate(start=start, end=end,
+                                    timezone=DEFAULT_TIMEZONE):
+        task.scheduled = NotionDate(start=start, end=end, timezone=DEFAULT_TIMEZONE)
+    if task.parent_name != 'Google Calendar':
+        task.parent_name = 'Google Calendar'
+    if task.Status != 'Backlog':
+        task.Status = 'Backlog'
+    if task.done:
+        task.done = False
 
 
 def update_calendar_or_notion(task, event, calendar, calendar_id):

@@ -68,6 +68,14 @@ def update_calendar():
     return ''
 
 
+@app.route('/update/calendar-primary', methods=['POST'])
+@requires_auth
+def update_calendar_primary():
+    from notion_api.calendar_updater import update_all_events_from_primary
+    update_all_events_from_primary()
+    return ''
+
+
 # A welcome message to test our server
 @app.route('/')
 def index():

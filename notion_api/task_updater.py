@@ -32,6 +32,7 @@ def update_from_hiring_board():
         task_row = task_db.get_or_create(title)
         task_row.link = _task.get_browseable_url()
         task_row.project = hiring_project.id
+        task_row.context = 'Office'
         task_row.task_type = 'Story'
         task_row.link = _task.get_browseable_url()
         if getattr(_task, 'Scheduled', None) and isinstance(_task.Scheduled,
