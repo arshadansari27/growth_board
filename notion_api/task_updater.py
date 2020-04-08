@@ -45,14 +45,25 @@ def update_from_hiring_board():
 
     qa_board = NotionDB(CONFIG[NOTION_QA_HIRING_URL])
     be_board = NotionDB(CONFIG[NOTION_BE_HIRING_URL])
+
+    tasks_on_hiring_board = {}
     for task in qa_board.get_all():
-        if any(qa_board.client.current_user == u
-                for u in task.Assign):
-            setup(task, 'QA')
+        tasks_on_hiring_board[task.get_browseable_url()] = ('QA', task)
     for task in be_board.get_all():
-        if any(be_board.client.current_user == u
-                for u in task.Assign):
-            setup(task, 'BE')
+        tasks_on_hiring_board[task.get_browseable_url()] = ('BE', task)
+
+    for task in task_db.get_all():
+        if not task.link or not tasks_on_hiring_board.get(task.link):
+            continue
+        board_type, _task = tasks_on_hiring_board.get(task.link)
+        if not _task:
+            continue
+        if not any(task_db.client.current_user == u for u in _task.Assign) or \
+                _task.Status in {"Dropped", "Offered"}:
+            task.remove()
+        else:
+            setup(_task, board_type)
+
 
 
 if __name__ == '__main__':
