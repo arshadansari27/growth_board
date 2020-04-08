@@ -85,8 +85,8 @@ def update_all_events_from_primary():
     for event in sorted(events, key=lambda u: conv(u.scheduled_start)):
         update_task_on_notion(task_db, event)
         not_any_more_on_calendar.add(event.name)
-    for task_name in not_any_more_on_calendar:
-        if task_name in task_db.rows:
+    for task_name in task_db.rows:
+        if task_name in not_any_more_on_calendar:
             task_db.rows[task_name].remove()
 
 
