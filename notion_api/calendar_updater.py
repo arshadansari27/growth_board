@@ -43,14 +43,18 @@ def update_calendar_times():
         calendar, calendar_id = get_calendar_by_context(task.context)
         event_key = key_gen(task.context, task.calendar_id)
         if task.task_type == 'Event':
+            print("[*] Task is event", task.title, task.context)
             continue
         if task.done:
+            print("[*] Task is done", task.title, task.context)
             if task.calendar_id and event_key in all_events:
                 all_events.pop(event_key)
                 _event = calendar.get_event(task.calendar_id, calendar_id)
                 if _event:
                     calendar.delete_event(task.calendar_id, calendar_id)
+                    print("\t... deleted from calendar...")
                 task.calendar_id = None
+            print("\t... skipped...")
             continue
         try:
             if not task.calendar_id:
@@ -78,10 +82,13 @@ def update_all_events_from_primary():
     )
     not_any_more_on_calendar = set()
     for event in sorted(events, key=lambda u: conv(u.scheduled_start)):
+        print("[*] Updating event:", event.name)
         update_task_on_notion(task_db, event)
+        not_any_more_on_calendar.add(event.name)
     for task_name in task_db.rows:
         if task_name in not_any_more_on_calendar:
             continue
+        print("[*] Deleting event:", task_name)
         task_db.rows[task_name].remove()
 
 
