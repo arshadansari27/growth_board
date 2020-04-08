@@ -50,6 +50,7 @@ def update_calendar_times():
         event_key = key_gen(task.context, task.calendar_id)
         if task.done and task.calendar_id:
             all_events.pop(event_key)
+            calendar.delete_event(task.calendar_id, calendar_id)
             continue
         try:
             if not task.calendar_id:
@@ -64,6 +65,7 @@ def update_calendar_times():
             print(task.title, all_events.get(event_key))
             raise
     update_all_events_from_primary()
+
 
 def update_all_events_from_primary():
     task_db = NotionDB(CONFIG[NOTION_TASKS_URL])
