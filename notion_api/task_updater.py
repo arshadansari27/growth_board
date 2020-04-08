@@ -34,9 +34,8 @@ def update_from_hiring_board():
         task_row.project = hiring_project.id
         task_row.task_type = 'Story'
         task_row.link = _task.get_browseable_url()
-        if getattr(_task, 'Schedule', None):
-            task_row.scheduled = NotionDate(
-                    _task.Schedule.start, _task.Schedule.end, DEFAULT_TIMEZONE)
+        task_row.scheduled = NotionDate(
+            _task.Schedule.start, _task.Schedule.end, DEFAULT_TIMEZONE)
         if task.Status in {'Dropped', 'Offered'}:
             task_row.done = True
         else:

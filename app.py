@@ -1,7 +1,34 @@
-from flask import Flask, request, jsonify
+from functools import wraps
 
+from flask import Flask, request, Response
+
+from config import CONFIG, AUTH_USER, AUTH_PASSWORD
 
 app = Flask(__name__)
+
+
+def check_auth(username, password):
+    _username, _password = CONFIG[AUTH_USER], CONFIG[AUTH_PASSWORD]
+    return username == _username and password == _password
+
+
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return Response(
+        "Could not verify your access level for that URL.\n" "You have to login with proper credentials",
+        401,
+        {"WWW-Authenticate": 'Basic realm="Login Required"'},
+    )
+
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
 
 
 @app.route('/calendar/task', methods=['GET'])
@@ -9,49 +36,47 @@ def task_calendar():
     return ''
 
 
-@app.route('/getmsg/', methods=['GET'])
-def respond():
-    # Retrieve the name from url parameter
-    name = request.args.get("name", None)
+@app.route('/update/tasks', methods=['POST'])
+@requires_auth
+def update_tasks():
+    from notion_api.task_updater import update_tasks as task_updater
+    task_updater()
 
-    # For debugging
-    print(f"got name {name}")
 
-    response = {}
+@app.route('/update/hiring', methods=['POST'])
+@requires_auth
+def update_hiring():
+    from notion_api.task_updater import update_from_hiring_board
+    update_from_hiring_board()
 
-    # Check if user sent a name at all
-    if not name:
-        response["ERROR"] = "no name found, please send a name."
-    # Check if the user entered a number not a name
-    elif str(name).isdigit():
-        response["ERROR"] = "name can't be numeric."
-    # Now the user entered a valid name
-    else:
-        response["MESSAGE"] = f"Welcome {name} to our awesome platform!!"
+    
+@app.route('/update/jira', methods=['POST'])
+@requires_auth
+def update_jira():
+    from notion_api.task_updater import update_notion_jira_tasks
+    update_notion_jira_tasks()
 
-    # Return the response in json format
-    return jsonify(response)
 
-@app.route('/post/', methods=['POST'])
-def post_something():
-    param = request.form.get('name')
-    print(param)
-    # You can add the test cases you made in the previous function, but in our case here you are just testing the POST functionality
-    if param:
-        return jsonify({
-            "Message": f"Welcome {param} to our awesome platform!!",
-            # Add this option to distinct the POST request
-            "METHOD" : "POST"
-        })
-    else:
-        return jsonify({
-            "ERROR": "no name found, please send a name."
-        })
+@app.route('/update/tracker', methods=['POST'])
+@requires_auth
+def update_tracker():
+    from notion_api.tracker_updater import update_tracker as tracker_updater
+    tracker_updater()
+
+
+@app.route('/update/calendar', methods=['POST'])
+@requires_auth
+def update_calendar():
+    from notion_api.calendar_updater import update_calendar_times
+    update_calendar_times()
+
 
 # A welcome message to test our server
 @app.route('/')
 def index():
     return "<h1>Welcome to our server !!</h1>"
+
+
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support

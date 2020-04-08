@@ -46,6 +46,8 @@ NOTION_TOKEN = "NOTION_TOKEN"
 NOTION_CONFIG = "NOTION_CONFIG"
 GOOGLE_CREDS_PERSONAL = "Google Calendar Personal Credentials File"
 GOOGLE_CREDS_OFFICE = "Google Calendar Office Credentials File"
+AUTH_USER = "AUTH USER"
+AUTH_PASSWORD = "AUTH PASSWORD"
 
 set_from_enviorn(CONFIG, NOTION_TOKEN)
 set_from_enviorn(CONFIG, NOTION_CONFIG)

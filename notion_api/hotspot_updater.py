@@ -31,6 +31,7 @@ def update_daily_hotspots():
             print("Skipping", st)
         start_date += timedelta(days=1)
 
+
 def get_data(today):
     def _client_data(dict_data):
         client = dict_data['title']['client']
