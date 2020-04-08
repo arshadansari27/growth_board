@@ -74,8 +74,8 @@ def update_all_events_from_primary():
     task_db = NotionDB(CONFIG[NOTION_TASKS_URL])
     p_calendar = GoogleCalendar(PERSONAL, CONFIG[GOOGLE_CREDS_PERSONAL])
     o_calendar = GoogleCalendar(OFFICE, CONFIG[GOOGLE_CREDS_OFFICE])
-    from_date = datetime.today() - timedelta(days=7)
-    to_date = datetime.today() + timedelta(days=7)
+    from_date = datetime.now(tz=pytz.timezone('Asia/Kolkata')).today() - timedelta(days=7)
+    to_date = datetime.now(tz=pytz.timezone('Asia/Kolkata')).today() + timedelta(days=7)
     events = chain(
             o_calendar.get_events('primary', from_date, to_date),
             p_calendar.get_events('primary', from_date, to_date)

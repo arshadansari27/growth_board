@@ -148,13 +148,25 @@ class GoogleCalendar:
             )
             start = (start - timedelta(days=30))
         else:
-            start =  from_date
+            start =  from_date.replace(
+                hour=0,
+                minute=0,
+                second=0,
+                microsecond=0,
+                tzinfo=pytz.timezone('Asia/Kolkata')
+            )
         if not to_date:
             end = (start + timedelta(days=365))
         else:
-            end = to_date
-        time_min = start.isoformat() + 'Z'
-        time_max = end.isoformat() + 'Z'
+            end = to_date.replace(
+                hour=0,
+                minute=0,
+                second=0,
+                microsecond=0,
+                tzinfo=pytz.timezone('Asia/Kolkata')
+            )
+        time_min = start.isoformat()
+        time_max = end.isoformat()
         t = self.service.events()
         events_result =  t.list(
                 calendarId=calendar_id, timeMin=time_min,
