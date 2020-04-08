@@ -82,7 +82,7 @@ def update_all_events_from_primary():
     )
     not_any_more_on_calendar = set()
     for event in sorted(events, key=lambda u: conv(u.scheduled_start)):
-        print("[*] Updating event:", event.name)
+        print("[*] Updating event:", event.name, event.scheduled_start)
         update_task_on_notion(task_db, event)
         not_any_more_on_calendar.add(event.name)
     for task_name in task_db.rows:
