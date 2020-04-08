@@ -75,8 +75,14 @@ def update_all_events_from_primary():
             o_calendar.get_events('primary', from_date, to_date),
             p_calendar.get_events('primary', from_date, to_date)
     )
+    not_any_more_on_calendar = set()
     for event in sorted(events, key=lambda u: conv(u.scheduled_start)):
         update_task_on_notion(task_db, event)
+        not_any_more_on_calendar.add(event.name)
+    for task_name in not_any_more_on_calendar:
+        if task_name in task_db.rows:
+            task_db.rows[task_name].remove()
+
 
 
 def conv(u):
