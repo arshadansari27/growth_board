@@ -14,17 +14,17 @@ def test_board_status_up_down():
     for i in iternaries:
         board.add(i)
     print(board.iterate())
-    print(board.status_per_iternaries)
+    print(board.status_per_items)
     for i in range(5):
         try:
             board.status_incr(iternaries[4])
-            print(board.status_per_iternaries)
+            print(board.status_per_items)
         except Exception as e:
             print(e)
     print('-' * 100)
     for i in range(5):
         board.status_decr(iternaries[4])
-        print(board.status_per_iternaries)
+        print(board.status_per_items)
 
 
 

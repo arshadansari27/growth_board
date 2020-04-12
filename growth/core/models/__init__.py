@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from queue import Queue
-from typing import Set
+from typing import Set, Any
 
 
 class AlreadyDoneError(Exception):
@@ -9,60 +9,54 @@ class AlreadyDoneError(Exception):
 
 
 @dataclass(eq=True, order=True)
-class Iternary:
-    id: int
-    name: str=None
-    description: str=None
-    next: Set["Iternary"]=None
-    previous: Set["Iternary"]=None
-    icon: str=None
+class Item:
+    element: Any
+    next_items: Set["Item"]
+    previous_items: Set["Item"]
 
-    def _setup(self, other: "Iternary"=None):
-        if not self.next:
-            self.next = set()
-        if not self.previous:
-            self.previous = set()
-        if other:
-            other._setup()
+    def __init__(self, element: Any,
+                 next_items: Set["Item"] = None,
+                 previous_items: Set["Item"] = None):
+        self.element = element
+        self.next_items = next_items if next_items else set()
+        self.previous_items = previous_items if previous_items else set()
 
-    def add_next(self, next_iternary: "Iternary"):
-        self._setup(next_iternary)
+    def _check_cycle(self, item, attr):
         queue = Queue()
-        queue.put(next_iternary)
+        queue.put(item)
         while not queue.empty():
             p = queue.get()
-            assert self != p, 'Cyclic dependency error [n]'
-            if not p.next:
+            assert self != p, f'Cyclic dependency error [{item}]'
+            items = getattr(p, attr, set())
+            if not items:
                 continue
-            for n in p.next:
+            for n in items:
                 queue.put(n)
-        self.next.add(next_iternary)
-        next_iternary.previous.add(self)
 
-    def add_previous(self, previous_iternary: "Iternary"):
-        self._setup(previous_iternary)
-        queue = Queue()
-        queue.put(previous_iternary)
-        while not queue.empty():
-            n = queue.get()
-            assert self != n, 'Cyclic dependency error [p]'
-            if not n.previous:
-                continue
-            for p in n.previous:
-                queue.put(p)
-        self.previous.add(previous_iternary)
-        previous_iternary.next.add(self)
+    def add_next(self, next_item: "Item"):
+        if next_item in self.next_items:
+            return
+        self._check_cycle(next_item, 'next_items')
+        next_item.add_previous(self)
+        self.next_items.add(next_item)
 
-    def remove_next(self, next_iternary: "Iternary"):
-        if next_iternary in self.next:
-            self.next.remove(next_iternary)
-        if self in next_iternary.previous:
-            next_iternary.previous.remove(self)
+    def add_previous(self, previous_item: "Item"):
+        if previous_item in self.previous_items:
+            return
+        self._check_cycle(previous_item, 'previous_items')
+        self.previous_items.add(previous_item)
+        previous_item.add_next(self)
 
-    def remove_previous(self, previous_iternary: "Iternary"):
-        if previous_iternary in self.previous:
-            self.previous.remove(previous_iternary)
-        if self in previous_iternary.next:
-            previous_iternary.next.remove(self)
+    def remove_next(self, next_item: "Item"):
+        if next_item in self.next_items:
+            self.next_items.remove(next_item)
+        if self in next_item.previous_items:
+            next_item.previous_items.remove(self)
+
+    def remove_previous(self, previous_item: "Item"):
+        if previous_item in self.previous_items:
+            self.previous_items.remove(previous_item)
+        if self in previous_item.next_items:
+            previous_item.next_items.remove(self)
 
 

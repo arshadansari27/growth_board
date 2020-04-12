@@ -1,4 +1,4 @@
-from ..models import Iternary
+from ..models import Item
 from ..models.board import Board
 from ..services import Context, ServiceMixin
 
@@ -15,12 +15,12 @@ class BoardService(ServiceMixin[Board]):
     def add_iternary(
             self,
             board_id: int,
-            iternary: Iternary):
+            iternary: Item):
         board = self.repo.get(board_id)
         board.add(iternary)
         return self.repo.create_update(board)
 
-    def remove_iternary(self, board_id: int, iternary: Iternary):
+    def remove_iternary(self, board_id: int, iternary: Item):
         board = self.repo.get(board_id)
         board.remove(iternary)
         return self.repo.create_update(board)

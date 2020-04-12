@@ -1,7 +1,8 @@
 from collections import namedtuple
 from dataclasses import dataclass
+from typing import Set
 
-from . import Iternary
+from . import Item
 
 
 Level = namedtuple("Level", ['current', 'max_cap'])
@@ -12,8 +13,14 @@ LEVEL_DOWN = 'down'
 
 
 @dataclass
-class Skill(Iternary):
+class Skill(Item):
     level: Level = Level(1, 10)
+
+    def __init__(self, id: int, name: str, level: Level, description: str = None,
+                 next_items: Set["Item"] = None, previous_items: Set["Item"] = None,
+                 icon: str = None):
+        super(Skill, self).__init__(id, name, description, next_items, previous_items, icon)
+        self.level = level
 
     def update(self, counter: LevelCounter):
         assert self.id == counter.skill_id

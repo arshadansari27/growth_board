@@ -15,10 +15,10 @@ def test_objectives():
     habit_3.add_next(habit_5)
     habit_3.add_previous(habit_2)
     habit_2.add_previous(habit_1)
-    assert habit_1 in habit_2.previous
-    assert habit_2 in habit_1.next
-    assert habit_4 in habit_3.next
-    assert habit_5 in habit_3.next
+    assert habit_1 in habit_2.previous_items
+    assert habit_2 in habit_1.next_items
+    assert habit_4 in habit_3.next_items
+    assert habit_5 in habit_3.next_items
     d = datetime.now()
     habit_3.set_date(d, True)
     assert d in habit_3.done_dates
@@ -37,8 +37,8 @@ def test_plan_map():
     plan_map.add(habit)
     plan_map.add(goal)
     plan_map.add(goal2)
-    assert goal2 in habit.next
-    assert habit in goal2.previous
-    assert goal in habit.previous
-    assert habit in goal.next
+    assert goal2 in habit.next_items
+    assert habit in goal2.previous_items
+    assert goal in habit.previous_items
+    assert habit in goal.next_items
     print(plan_map.iterate())

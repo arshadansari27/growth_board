@@ -16,7 +16,7 @@ TASK_GOAL_PROPERTY_MAP = {
     'link': 'f$el',
     'init': '=tG;',
     'done': 'h,N?',
-    'next': 'fQ&A',
+    'next_items': 'fQ&A',
     'waiting_on': 'WdYM',
     'dependents_finished': 'j)H^',
 }
