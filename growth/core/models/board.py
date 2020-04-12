@@ -1,10 +1,8 @@
-from collections import OrderedDict
 from dataclasses import dataclass
 from queue import Queue
 from typing import Set, List, Tuple, Dict
 
-from core.models import Iternary
-
+from . import Iternary
 
 STATUS_BACKLOG = 'backlog'
 STATUS_READY = 'ready'

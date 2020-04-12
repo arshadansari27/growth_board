@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import Any, List
 
-from core.models.objectives import Habit, PROGRESS_TYPE_BOOLEAN, \
+from ..models.objectives import Habit, PROGRESS_TYPE_BOOLEAN, \
     PROGRESS_TYPE_VALUE, Frequency
-from core.models.skills import LevelRequisite, LevelCounter
-from core.services import Context, ServiceMixin
-from core.services.skills import SkillService
+from ..models.skills import LevelRequisite, LevelCounter
+from ..services import Context, ServiceMixin
+from ..services.skills import SkillService
 
 
 class HabitService(ServiceMixin[Habit]):

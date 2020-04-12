@@ -1,10 +1,10 @@
 import datetime
 from typing import Any, List
 
-from core.models.objectives import Goal, Task, Due
-from core.models.skills import LevelRequisite, LevelCounter
-from core.services import Context, ServiceMixin
-from core.services.skills import SkillService
+from ..models.objectives import Goal, Task, Due
+from ..models.skills import LevelRequisite, LevelCounter
+from ..services import Context, ServiceMixin
+from ..services.skills import SkillService
 
 
 class GoalService(ServiceMixin[Goal]):

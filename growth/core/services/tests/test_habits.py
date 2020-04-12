@@ -3,12 +3,11 @@ import random
 
 import pytest
 
-from core.models.objectives import PROGRESS_TYPE_VALUE, Frequency, \
-    FREQUENCY_WEEKLY, PROGRESS_TYPE_BOOLEAN
-from core.models.skills import Skill
-from core.services import in_memory_context_factory
-from core.services.habits import HabitService
-from core.services.skills import SkillRequisiteNotMetError
+from ...models.objectives import PROGRESS_TYPE_VALUE, Frequency, FREQUENCY_WEEKLY, PROGRESS_TYPE_BOOLEAN
+from ...models.skills import Skill
+from .. import in_memory_context_factory
+from ..habits import HabitService
+from ..skills import SkillRequisiteNotMetError
 
 
 @pytest.fixture(scope='module')

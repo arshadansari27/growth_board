@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
-from core.models.board import Board
-from core.models.objectives import Habit, Due, Goal
+from growth.core.models.board import Board
+from growth.core.models.objectives import Habit, Due, Goal
 
 
 def test_objectives():

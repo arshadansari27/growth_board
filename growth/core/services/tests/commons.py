@@ -2,8 +2,8 @@ from typing import TypeVar
 
 import pytest
 
-from core.models.objectives import Goal
-from core.services import in_memory_context_factory, Context, ServiceMixin
+from ...models.objectives import Goal
+from .. import in_memory_context_factory, Context, ServiceMixin
 
 
 @pytest.fixture

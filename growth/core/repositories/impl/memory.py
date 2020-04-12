@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from core.repositories import (
+from .. import (
     GoalRepository,
     HabitRepository,
     TaskRepository,

@@ -1,7 +1,7 @@
 from typing import List
 
-from core.models.skills import Skill, LevelCounter, LevelRequisite
-from core.services import Context, ServiceMixin
+from ..models.skills import Skill, LevelCounter, LevelRequisite
+from . import Context, ServiceMixin
 
 
 class SkillService(ServiceMixin[Skill]):

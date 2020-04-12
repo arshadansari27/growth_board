@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Dict, Set, Any, Union
 
-from core.models import Iternary
-from core.models.skills import LevelRequisite, LevelCounter
+from . import Iternary
+from .skills import LevelRequisite, LevelCounter
 
 PROGRESS_TYPE_TASK = 'tasks'
 PROGRESS_TYPE_VALUE = 'value'
@@ -126,7 +126,7 @@ class Habit(Objective):
         del self.done_dates[date]
 
     def update_rating(self):
-        from core.models.specs import count_progress
+        from .specs import count_progress
         self.rating = 0
         if not self.done_dates:
             return

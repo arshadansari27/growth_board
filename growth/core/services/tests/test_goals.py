@@ -2,11 +2,11 @@ import datetime
 
 import pytest
 
-from core.models.objectives import PROGRESS_TYPE_TASK, PROGRESS_TYPE_BOOLEAN
-from core.models.skills import Skill
-from core.services import in_memory_context_factory
-from core.services.goals import GoalService, TaskService
-from core.services.skills import SkillRequisiteNotMetError
+from growth.core.models.objectives import PROGRESS_TYPE_TASK, PROGRESS_TYPE_BOOLEAN
+from growth.core.models.skills import Skill
+from growth.core.services import in_memory_context_factory
+from growth.core.services.goals import GoalService, TaskService
+from growth.core.services.skills import SkillRequisiteNotMetError
 
 
 @pytest.fixture(scope='module')

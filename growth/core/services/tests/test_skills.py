@@ -1,11 +1,8 @@
-import datetime
-import random
-
 import pytest
 
-from core.models.skills import Skill
-from core.services import in_memory_context_factory
-from core.services.skills import SkillService
+from .. import in_memory_context_factory
+from ..skills import SkillService
+from ...models.skills import Skill
 
 
 @pytest.fixture(scope='module')

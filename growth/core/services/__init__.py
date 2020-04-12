@@ -1,10 +1,10 @@
 import abc
 from typing import TypeVar, Generic, List, Any, Union
 
-from core.models.board import Board
-from core.models.objectives import Goal, Habit, Task
-from core.models.skills import Skill
-from core.repositories import BoardRepository, GoalRepository, TaskRepository, \
+from ..models.board import Board
+from ..models.objectives import Goal, Habit, Task
+from ..models.skills import Skill
+from ..repositories import BoardRepository, GoalRepository, TaskRepository, \
     HabitRepository, SkillRepository
 
 
@@ -107,6 +107,6 @@ class ServiceMixin(Generic[T], metaclass=abc.ABCMeta):
 
 
 def in_memory_context_factory():
-    from core.repositories.impl.memory import MemoryRepository
+    from ..repositories.impl.memory import MemoryRepository
     return Context(MemoryRepository(), MemoryRepository(),
             MemoryRepository(), MemoryRepository(), MemoryRepository())

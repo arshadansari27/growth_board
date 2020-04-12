@@ -1,7 +1,7 @@
 import pytest
 
-from core.models.objectives import Goal
-from core.repositories.impl.memory import MemoryRepository
+from ...models.objectives import Goal
+from ..impl.memory import MemoryRepository
 
 
 @pytest.fixture

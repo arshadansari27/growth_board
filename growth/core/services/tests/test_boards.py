@@ -1,11 +1,11 @@
 import pytest
 
-from core.models.objectives import Frequency, PROGRESS_TYPE_BOOLEAN, \
+from growth.core.models.objectives import Frequency, PROGRESS_TYPE_BOOLEAN, \
     FREQUENCY_DAILY
-from core.services import in_memory_context_factory
-from core.services.boards import BoardService
-from core.services.goals import GoalService
-from core.services.habits import HabitService
+from growth.core.services import in_memory_context_factory
+from growth.core.services.boards import BoardService
+from growth.core.services.goals import GoalService
+from growth.core.services.habits import HabitService
 
 
 @pytest.fixture(scope='module')

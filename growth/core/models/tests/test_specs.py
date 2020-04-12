@@ -3,9 +3,9 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from core.models.objectives import PROGRESS_TYPE_BOOLEAN, Frequency, \
+from ..objectives import PROGRESS_TYPE_BOOLEAN, Frequency, \
     FREQUENCY_DAILY, FREQUENCY_WEEKLY
-from core.models.specs import group_daily, group_monthly, group_weekly, \
+from ..specs import group_daily, group_monthly, group_weekly, \
     count_progress
 
 

@@ -1,6 +1,6 @@
-from core.models import Iternary
-from core.models.board import Board
-from core.services import Context, ServiceMixin
+from ..models import Iternary
+from ..models.board import Board
+from ..services import Context, ServiceMixin
 
 
 class BoardService(ServiceMixin[Board]):

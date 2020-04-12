@@ -1,7 +1,7 @@
 import pytest
 
-from core.models.board import Board
-from core.models.objectives import Objective, Goal
+from growth.core.models.board import Board
+from growth.core.models.objectives import Objective, Goal
 
 
 def test_board_status_up_down():

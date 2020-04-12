@@ -1,7 +1,7 @@
 from collections import namedtuple
 from dataclasses import dataclass
 
-from core.models import Iternary
+from . import Iternary
 
 
 Level = namedtuple("Level", ['current', 'max_cap'])

@@ -1,13 +1,13 @@
 import abc
 from typing import List
 
-from core.models.board import Board
-from core.models.objectives import (
+from ..models.board import Board
+from ..models.objectives import (
     Goal,
     Task,
     Habit,
 )
-from core.models.skills import Skill
+from ..models.skills import Skill
 
 
 def get_abstract_repository(Klass):
