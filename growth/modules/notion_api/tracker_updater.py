@@ -1,9 +1,9 @@
 from collections import defaultdict
 from datetime import date, datetime, timedelta
 
-from config import NOTION_TRACKABLE_THINGS_URL, NOTION_TRACKING_DAILY_URL, \
+from growth.config import NOTION_TRACKABLE_THINGS_URL, NOTION_TRACKING_DAILY_URL, \
     CONFIG, NOTION_TRACKING_WEEKLY_URL, NOTION_TASKS_URL
-from notion_api import NotionDB
+from growth.modules.notion_api import NotionDB
 
 
 def update_daily_tracker_from_tasks():

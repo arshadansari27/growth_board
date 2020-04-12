@@ -10,7 +10,7 @@ from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
-from config import CONFIG, GOOGLE_CREDS_PERSONAL, GOOGLE_CREDS_OFFICE
+from growth.config import CONFIG, GOOGLE_CREDS_PERSONAL, GOOGLE_CREDS_OFFICE
 
 PERSONAL = 'Personal'
 OFFICE = 'Office'

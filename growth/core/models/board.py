@@ -94,7 +94,6 @@ class Board:
                                              "further backwards state")
 
 
-
 class InvalidStatusError(Exception):
     def __init__(self, msg):
         super(InvalidStatusError, self).__init__(f'Status Invalid Error: {msg}')

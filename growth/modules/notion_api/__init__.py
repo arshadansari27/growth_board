@@ -4,7 +4,7 @@ import requests
 from notion.client import NotionClient
 from notion.collection import NotionDate
 
-from config import CONFIG
+from growth.config import CONFIG
 
 
 class NotionDB:

@@ -3,11 +3,11 @@ from datetime import datetime, date, timedelta
 import pytz
 from notion.collection import NotionDate
 from icalendar import Calendar, Event
-from config import CONFIG, GOOGLE_CREDS_PERSONAL, GOOGLE_CREDS_OFFICE, \
+from growth.config import CONFIG, GOOGLE_CREDS_PERSONAL, GOOGLE_CREDS_OFFICE, \
     NOTION_TASKS_URL
-from integration.calendar_google_api import GoogleCalendar, GoogleCalendarData, \
+from growth.modules.integration.calendar_google_api import GoogleCalendar, GoogleCalendarData, \
     PERSONAL_NOTION, OFFICE_NOTION, OFFICE, PERSONAL
-from notion_api import NotionDB
+from growth.modules.notion_api import NotionDB
 
 
 def create_calendar_from_tasks():

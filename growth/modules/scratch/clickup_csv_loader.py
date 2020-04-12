@@ -1,5 +1,5 @@
-from config import CONFIG
-from integration.notion_api import update_study
+from growth.config import CONFIG
+from growth.modules.integration import update_study
 
 FILE = '/Users/arshad/Desktop/clickup.csv'
 import csv

@@ -4,8 +4,8 @@ import pytz
 import requests
 from requests.auth import HTTPBasicAuth
 
-from config import CONFIG, TOGGL_URL, NOTION_TRACKING_DAILY_URL, TOGGL_KEY
-from notion_api import NotionDB
+from growth.config import CONFIG, TOGGL_URL, NOTION_TRACKING_DAILY_URL, TOGGL_KEY
+from growth.modules.notion_api import NotionDB
 
 daily_tracking_url = CONFIG[NOTION_TRACKING_DAILY_URL]
 toggl_url = CONFIG[TOGGL_URL]
