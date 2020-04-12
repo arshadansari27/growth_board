@@ -1,5 +1,5 @@
 from growth.config import CONFIG
-from growth.modules.notion_api import NotionDB
+from growth.integration.notion_api import NotionDB
 
 
 

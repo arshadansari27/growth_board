@@ -11,4 +11,4 @@ def cli(ctx):
         Click client caller command group
     """
     ctx.obj = {}
-
+    print("Running on command line...")

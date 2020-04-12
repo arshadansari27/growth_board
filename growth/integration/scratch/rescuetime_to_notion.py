@@ -5,8 +5,8 @@ import requests
 from dateutil import parser
 
 from growth.config import CONFIG
-from growth.modules.integration import create_date, _FORMAT
-from growth.modules.notion_api import update_rescue_time
+from growth.integration import create_date, _FORMAT
+from growth.integration.notion_api import update_rescue_time
 
 URL = CONFIG['RESCUETIME_URL']
 KEYS =['Date', 'Time Spent (seconds)', 'Number of People', 'Activity',

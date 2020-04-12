@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from airtable import airtable
 from growth.config import CONFIG
-from growth.modules.integration.calendar_google_api import GoogleCalendarData
+from growth.integration.calendar_google_api import GoogleCalendarData
 
 API_KEY=CONFIG.get('AIRTABLE_API_KEY')
 

@@ -5,9 +5,9 @@ from notion.collection import NotionDate
 from icalendar import Calendar, Event
 from growth.config import CONFIG, GOOGLE_CREDS_PERSONAL, GOOGLE_CREDS_OFFICE, \
     NOTION_TASKS_URL
-from growth.modules.integration.calendar_google_api import GoogleCalendar, GoogleCalendarData, \
+from growth.integration.calendar_google_api import GoogleCalendar, GoogleCalendarData, \
     PERSONAL_NOTION, OFFICE_NOTION, OFFICE, PERSONAL
-from growth.modules.notion_api import NotionDB
+from growth.integration.notion_api import NotionDB
 
 
 def create_calendar_from_tasks():

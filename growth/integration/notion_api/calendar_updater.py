@@ -6,10 +6,10 @@ from notion.collection import NotionDate
 
 from growth.config import CONFIG, GOOGLE_CREDS_PERSONAL, GOOGLE_CREDS_OFFICE, \
     NOTION_TASKS_URL
-from growth.modules.integration.calendar_google_api import GoogleCalendar, \
+from growth.integration.calendar_google_api import GoogleCalendar, \
     GoogleCalendarData, \
     PERSONAL_NOTION, OFFICE_NOTION, OFFICE, PERSONAL, DEFAULT_TIMEZONE
-from growth.modules.notion_api import NotionDB
+from growth.integration.notion_api import NotionDB
 
 
 def update_calendar_times():

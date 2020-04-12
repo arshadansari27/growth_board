@@ -3,9 +3,9 @@ from notion.collection import NotionDate
 
 from growth.config import CONFIG, NOTION_TASKS_URL, NOTION_PROJECT_URL, \
     NOTION_QA_HIRING_URL, NOTION_BE_HIRING_URL
-from growth.modules.integration.calendar_google_api import DEFAULT_TIMEZONE
-from growth.modules.integration.jira_api import update_notion_jira_tasks
-from growth.modules.notion_api import NotionDB
+from growth.integration.calendar_google_api import DEFAULT_TIMEZONE
+from growth.integration import update_notion_jira_tasks
+from growth.integration.notion_api import NotionDB
 
 
 def update_tasks():

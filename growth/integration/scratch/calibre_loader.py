@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from growth.modules.integration import NotionDB
+from growth.integration import NotionDB
 
 url = 'https://www.notion.so/02498fb7596c45999e5b2619608a8c04?v=849b990573454c0d9824c005fb2853ff'
 path = Path('/Users/arshad/Dropbox/calibre').absolute()
