@@ -12,6 +12,7 @@ def set_from_enviorn(config, val):
 
 
 def set_from_value(config, key, value):
+    print('[*] Config:', f"'{key}'", f"'{value}'")
     config[key] = value
 
 
@@ -90,6 +91,7 @@ JIRA_PERSONAL_KEY="Jira Personal Key"
 AIRTABLE_API_KEY="Airtable Key"
 NOTION_QA_HIRING_URL = "QA Hiring Board"
 NOTION_BE_HIRING_URL = "BE Hiring Board"
+NOTION_CONFLUENCE_DB = "Confluence DB"
 
 if CONFIG.get(NOTION_TOKEN, False) and CONFIG.get(NOTION_CONFIG, False):
     setup_conf()

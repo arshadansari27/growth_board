@@ -5,3 +5,4 @@
 envfile
 *.json
 *.pickle
+space_data.json
