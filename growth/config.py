@@ -45,13 +45,18 @@ def save_file(file_url, as_binary=False):
 CONFIG = {}
 NOTION_TOKEN = "NOTION_TOKEN"
 NOTION_CONFIG = "NOTION_CONFIG"
+DATABASE_URL = "DATABASE_URL"
+DATABASE_NAME = "DATABASE_NAME"
 GOOGLE_CREDS_PERSONAL = "Google Calendar Personal Credentials File"
 GOOGLE_CREDS_OFFICE = "Google Calendar Office Credentials File"
 AUTH_USER = "AUTH USER"
 AUTH_PASSWORD = "AUTH PASSWORD"
 
+
 set_from_enviorn(CONFIG, NOTION_TOKEN)
 set_from_enviorn(CONFIG, NOTION_CONFIG)
+set_from_enviorn(CONFIG, DATABASE_URL)
+set_from_enviorn(CONFIG, DATABASE_NAME)
 
 
 def setup_conf():
