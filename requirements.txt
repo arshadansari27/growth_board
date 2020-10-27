@@ -12,7 +12,7 @@ cffi==1.14.0
 chardet==3.0.4
 Click==7.0
 commonmark==0.9.1
-cryptography==2.8
+cryptography==3.2
 dataclasses==0.6
 defusedxml==0.6.0
 dictdiffer==0.8.1
